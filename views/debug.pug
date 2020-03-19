@@ -1,0 +1,13 @@
+//this is specifically used for testing routes, and can be safely deleted if you don't want that functionality
+html
+    head
+        title Debug Panel
+        script( src="js/routeTester.js" )
+        script( src="js/routes.js" )
+        
+body( onload="addFields()" )
+    p Hit send on a route to test. For lists, put in valid JSON.
+    div( id="urlField" )
+    iframe( width=500 height=150 src="about:blank" id="resultsFrame" )
+    
+    div( id="routeFields" )
