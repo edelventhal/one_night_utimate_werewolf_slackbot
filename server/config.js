@@ -10,15 +10,15 @@ var Config = module.exports =
     
     NightPhaseList:
     [
-        "doppelganger",
-        "werewolf",
-        "minion",
-        "mason",
-        "seer",
-        "robber",
-        "troublemaker",
-        "drunk",
-        "insomniac"
+        "doppelganger", //0
+        "werewolf", //1
+        "minion", //2
+        "mason", //3
+        "seer", //4
+        "robber", //5
+        "troublemaker", //6
+        "drunk", //7
+        "insomniac" //8
     ],
     
     NightPhase:

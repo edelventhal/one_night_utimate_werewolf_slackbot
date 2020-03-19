@@ -280,7 +280,28 @@ describe( "GameModel (WaitingForPlayers)", function()
 
 describe( "GameModel (Night)", function()
 {
-    const targetPlayerCount = 10;
+    //we force the game to use these specific roles
+    const forcedRoles =
+    [
+        "villager",
+        "doppelganger",
+        "seer",
+        "robber",
+        "troublemaker",
+        "drunk",
+        "insomniac",
+        "werewolf"
+    ];
+    
+    //these will be in the available roles after assignment
+    const forcedExtraRoles =
+    [
+        "villager",
+        "mason",
+        "werewolf"
+    ];
+    
+    const targetPlayerCount = forcedRoles.length;
     const targetRoleCount = targetPlayerCount + 3; //3 is a game design choice
     
     const findPlayerWithRole = function( role )
@@ -305,17 +326,11 @@ describe( "GameModel (Night)", function()
     {
         forcedRoles.forEach( (role) =>
         {
-            //console.log( "Forcing " + role );
-            
             if ( !findPlayerWithRole( role ) )
             {
-                //console.log( "Nobody had " + role );
-                
                 const unusedIndex = game.unusedRoles.indexOf( role );
                 if ( unusedIndex >= 0 )
                 {
-                    //console.log( "Found the role at " + unusedIndex + " in unused" );
-                    
                     game.players.forEach( ( playerId ) =>
                     {
                         if ( role && forcedRoles.indexOf( game.roles[playerId] ) < 0 )
@@ -323,7 +338,6 @@ describe( "GameModel (Night)", function()
                             game.unusedRoles.splice( unusedIndex, 1, game.roles[playerId] );
                             game.roles[playerId] = role;
                             game.initialRoles[playerId] = role;
-                            //console.log( "made the swap, unused is now " + JSON.stringify( game.unusedRoles ) );
                             role = null;
                         }
                     });
@@ -333,8 +347,6 @@ describe( "GameModel (Night)", function()
                     const availableIndex = game.availableRoles.indexOf( role );
                     if ( availableIndex >= 0 )
                     {
-                        //console.log( "Found the role at " + availableIndex + " in available" );
-                        
                         game.players.forEach( ( playerId ) =>
                         {
                             if ( role && forcedRoles.indexOf( game.roles[playerId] ) < 0 )
@@ -342,37 +354,26 @@ describe( "GameModel (Night)", function()
                                 game.availableRoles.splice( availableIndex, 1, game.roles[playerId] );
                                 game.roles[playerId] = role;
                                 game.initialRoles[playerId] = role;
-                                //console.log( "made the swap, available is now " + JSON.stringify( game.availableRoles ) );
                                 role = null;
                             }
                         });
                     }
                 }
             }
-            else
-            {
-                //console.log( "Player " + findPlayerWithRole( role ) + " is already a " + role );
-            }
         });
-        
-        //console.log( "Final roles " + JSON.stringify( game.roles ) + " / " + JSON.stringify( game.initialRoles ) );
     };
     
     //these are cascading role functions – they *must* go in order
-    const swapDoppelgangerToVillager = function( forcedRoles, cb )
+    const doDoppelgangerCopy = function( cb )
     {
-        forcedRoles.push( "doppelganger" );
-        forcedRoles.push( "villager" );
-        forceRolesToExist( forcedRoles );
         const doppelgangerPlayerId = findPlayerWithRole( "doppelganger" );
         const targetPlayerId = findPlayerWithRole( "villager" );
         game.doppelgangerCopy( doppelgangerPlayerId, targetPlayerId, cb );
     };
     
-    const doSeerReveal = function( forcedRoles, targetRole, cb )
+    const doSeerReveal = function( targetRole, cb )
     {
-        forcedRoles.push( "seer" );
-        swapDoppelgangerToVillager( forcedRoles, function()
+        doDoppelgangerCopy( function()
         {
             const seerPlayerId = findPlayerWithRole( "seer" );
             const targetPlayerId = findPlayerWithRole( targetRole );
@@ -380,10 +381,9 @@ describe( "GameModel (Night)", function()
         });
     };
     
-    const doRobberSteal = function( forcedRoles, cb )
+    const doRobberSteal = function( cb )
     {
-        forcedRoles.push( "robber" );
-        doSeerReveal( forcedRoles, null, function()
+        doSeerReveal( null, function()
         {
             const robberPlayerId = findPlayerWithRole( "robber" );
             const targetPlayerId = findPlayerWithRole( "villager" );
@@ -391,11 +391,9 @@ describe( "GameModel (Night)", function()
         });
     };
     
-    const doTroublemakerSwap = function( forcedRoles, cb )
+    const doTroublemakerSwap = function( cb )
     {
-        forcedRoles.push( "troublemaker" );
-        forcedRoles.push( "werewolf" );
-        doRobberSteal( forcedRoles, function()
+        doRobberSteal( function()
         {
             const troublemakerPlayerId = findPlayerWithRole( "troublemaker" );
             const seerPlayerId = findPlayerWithRole( "seer" );
@@ -404,20 +402,18 @@ describe( "GameModel (Night)", function()
         });
     };
     
-    const doDrunkSwap = function( forcedRoles, cb )
+    const doDrunkSwap = function( cb )
     {
-        forcedRoles.push( "drunk" );
-        doTroublemakerSwap( forcedRoles, function()
+        doTroublemakerSwap( function()
         {
             const drunkPlayerId = findPlayerWithRole( "drunk" );
-            game.drunkSwap( drunkPlayerId, cb.bind( this, drunkPlayerId ) );
+            game.drunkSwap( drunkPlayerId, cb.bind( this, drunkPlayerId, JSON.parse( JSON.stringify( game.availableRoles ) ) ) );
         });
     };
     
-    const doInsomniacInspect = function( forcedRoles, cb )
+    const doInsomniacInspect = function( cb )
     {
-        forcedRoles.push( "insomniac" );
-        doDrunkSwap( forcedRoles, function()
+        doDrunkSwap( function()
         {
             const insomniacPlayerId = findPlayerWithRole( "insomniac" );
             game.insomniacInspect( insomniacPlayerId, cb.bind( this, insomniacPlayerId ) );
@@ -439,6 +435,18 @@ describe( "GameModel (Night)", function()
                     {
                         game.startGame( function( error2 )
                         {
+                            game.players.forEach( ( playerId, index ) =>
+                            {
+                                //note that this may cause duplicates of some roles
+                                if ( index < forcedRoles.length )
+                                {
+                                    game.roles[ playerId ] = forcedRoles[ index ];
+                                    game.initialRoles[ playerId ] = forcedRoles[ index ];
+                                }
+                            });
+                            
+                            game.availableRoles = JSON.parse( JSON.stringify( forcedExtraRoles ) );
+                            
                             cb();
                         });
                     });
@@ -449,7 +457,7 @@ describe( "GameModel (Night)", function()
     
     it( "should be able to swap to a villager as the doppelganger", function( cb )
     {
-        swapDoppelgangerToVillager( [], function( error, newRole )
+        doDoppelgangerCopy( function( error, newRole )
         {
             expect(error).toBeFalsy();
             expect(newRole).toEqual("villager");
@@ -459,7 +467,7 @@ describe( "GameModel (Night)", function()
     
     it( "should be able to reveal the villager's card as the seer", function( cb )
     {
-        doSeerReveal( [], "villager", function( error, revealedRoles )
+        doSeerReveal( "villager", function( error, revealedRoles )
         {
             expect(error).toBeFalsy();
             expect(revealedRoles.length).toEqual(1);
@@ -470,20 +478,22 @@ describe( "GameModel (Night)", function()
     
     it( "should be able to reveal 2 unassigned cards as the seer", function( cb )
     {
-        doSeerReveal( [], null, function( error, revealedRoles )
+        doSeerReveal( null, function( error, revealedRoles )
         {
             expect(error).toBeFalsy();
             expect(revealedRoles.length).toEqual(2);
             expect(game.availableRoles.indexOf(revealedRoles[0])).toBeGreaterThanOrEqual(0);
             expect(game.availableRoles.indexOf(revealedRoles[1])).toBeGreaterThanOrEqual(0);
-            expect(revealedRoles[0]).not.toEqual(revealedRoles[1]);
+            //this is a bad test - it's possible to have 2 villagers, werewolves, or masons
+            //expect(revealedRoles[0]).not.toEqual(revealedRoles[1]);
             cb();
         });
     });
     
     it( "should be able to steal the villager as the robber", function( cb )
     {
-        doRobberSteal( [], function( robberPlayerId, targetPlayerId, error, stolenRole )
+        
+        doRobberSteal( function( robberPlayerId, targetPlayerId, error, stolenRole )
         {
             expect(error).toBeFalsy();
             expect(stolenRole).toEqual("villager");
@@ -497,7 +507,7 @@ describe( "GameModel (Night)", function()
     
     it( "should be able to swap the werewolf's and seer's cards as the troublemaker", function( cb )
     {
-        doTroublemakerSwap( [], function( targetPlayerId0, targetPlayerId1, error )
+        doTroublemakerSwap( function( targetPlayerId0, targetPlayerId1, error )
         {
             expect(error).toBeFalsy();
             expect(game.roles[targetPlayerId0]).toEqual("werewolf");
@@ -510,8 +520,7 @@ describe( "GameModel (Night)", function()
     
     it( "should be able to take a random card from the center as the drunk", function( cb )
     {
-        const availableRolesBefore = JSON.parse( JSON.stringify( game.availableRoles ) );
-        doDrunkSwap( [], function( drunkPlayerId, error )
+        doDrunkSwap( function( drunkPlayerId, availableRolesBefore, error )
         {
             expect(error).toBeFalsy();
             expect(game.roles[drunkPlayerId]).not.toEqual("drunk");
@@ -524,7 +533,7 @@ describe( "GameModel (Night)", function()
     
     it( "should be able to view its own card as the insomniac", function( cb )
     {
-        doInsomniacInspect( [], function( insomniacPlayerId, error, revealedRole )
+        doInsomniacInspect( function( insomniacPlayerId, error, revealedRole )
         {
             expect(error).toBeFalsy();
             expect(game.roles[insomniacPlayerId]).toEqual("insomniac");
@@ -533,3 +542,12 @@ describe( "GameModel (Night)", function()
         });
     });
 });
+
+//NEXT - add tests for all the different doppelganger options
+//doppel won't work if it's the insomniac, need to fix that... going to suck,
+//likely easiest to just add a BS edge case in gotoNextPhase or something... that sucks though
+//maybe add another phase that's like doppelInsomniac, then have a config that doesn't add
+//this thing to all the various lists? weak tho
+//NEXT NEXT - add tests for all the error checking, like when you try to go not on your turn
+//NEXT NEXT NEXT - put in the controller and all the slack interactions, put the slack stuff
+//behind an abstraction so it could easily be changed for discord etc

@@ -277,7 +277,7 @@ GameModel.prototype.doppelgangerCopy = function( doppelPlayerId, targetPlayerId,
     
     if ( this.nightPhase !== config.NightPhase.doppelganger )
     {
-        cb( "It's not the doppelganger's turn yet!" );
+        cb( "It's not the doppelganger's turn yet! " + this.nightPhase );
     }
     
     const newRole = this.roles[ targetPlayerId ];
@@ -290,7 +290,7 @@ GameModel.prototype.doppelgangerCopy = function( doppelPlayerId, targetPlayerId,
     }
     
     this.roleData.doppelganger = newRole;
-    
+        
     this.save( ( error ) =>
     {
         if ( error )
@@ -330,7 +330,7 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
     if ( !( this.nightPhase === config.NightPhase.seer ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ seerPlayerId ] === "seer" ) ) )
     {
-        cb( "It's not the seer's turn yet!" );
+        cb( "It's not the seer's turn yet! " + this.nightPhase );
     }
     
     this._goToNextNightPhase();
@@ -397,7 +397,7 @@ GameModel.prototype.robberSteal = function( robberPlayerId, targetPlayerId, cb )
     if ( !( this.nightPhase === config.NightPhase.robber ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ robberPlayerId ] === "robber" ) ) )
     {
-        cb( "It's not the robber's turn yet!" );
+        cb( "It's not the robber's turn yet! " + this.nightPhase );
     }
     
     this._goToNextNightPhase();
@@ -449,7 +449,7 @@ GameModel.prototype.troublemakerSwap = function( troublemakerPlayerId, targetPla
     if ( !( this.nightPhase === config.NightPhase.troublemaker ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ troublemakerPlayerId ] === "troublemaker" ) ) )
     {
-        cb( "It's not the troublemaker's turn yet!" );
+        cb( "It's not the troublemaker's turn yet! " + this.nightPhase );
     }
     
     this._goToNextNightPhase();
@@ -480,7 +480,7 @@ GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
     if ( !( this.nightPhase === config.NightPhase.drunk ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ drunkPlayerId ] === "drunk" ) ) )
     {
-        cb( "It's not the drunk's turn yet!" );
+        cb( "It's not the drunk's turn yet! " + this.nightPhase );
     }
     
     this._goToNextNightPhase();
@@ -511,7 +511,7 @@ GameModel.prototype.insomniacInspect = function( insomniacPlayerId, cb )
     if ( !( this.nightPhase === config.NightPhase.insomniac ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ insomniacPlayerId ] === "insomniac" ) ) )
     {
-        cb( "It's not the insomniac's turn yet!" );
+        cb( "It's not the insomniac's turn yet! " + this.nightPhase );
     }
     
     this._goToNextNightPhase();
