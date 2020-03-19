@@ -13,13 +13,33 @@ const GAME_KEY_PREFIX = "game.";
 var GameModel = module.exports = function( gameId, cb )
 {
     this.id = gameId;
+    
+    //all players in this game by id
     this.players = [];
-    this.roles = {}; //a dict where the playerId is the key, and role is the value
-    this.initialRoles = {}; //a dict where the playerId is the key, and the role is the value
-    this.roleData = {}; // a dict where the role is the key, and some data is the value
+    
+    //maps player ids to roles that have been assigned to them (including after swaps)
+    this.roles = {};
+    
+    //maps player ids to the roles that were initially assigned to that player, before swaps
+    this.initialRoles = {};
+    
+    //maps a role to additional data for that role (currently only used by the doppelganger for their copied role)
+    this.roleData = {};
+    
+    //a list of all roles that are in this game but haven't been assigned.
+    //before assigning roles, this will have every possible role that can be dealt,
+    //and will be filled automatically to be playerCount + 3, as the game demands.
+    //after assigning roles, this will have exactly 3 roles in it – those that are unassigned
     this.availableRoles = [];
+    
+    //these are roles that are not being used in this game at all – mutually exclusive with
+    //roles that end up in the availableRoles array
     this.unusedRoles = [];
+    
+    //the phase of the game, matches an enum config.GamePhase
     this.phase = 0;
+    
+    //the phase of the night if the current phase is GamePhase.night, matches config.NightPhase
     this.nightPhase = 0;
 
     //if this game already exists, load it, otherwise just return a new game
@@ -90,9 +110,10 @@ GameModel.prototype.remove = function( cb )
     }.bind(this));
 };
 
-GameModel.prototype.reset = function()
+GameModel.prototype.reset = function( cb )
 {
     this._initializeNewGame();
+    this.save( cb );
 };
 
 GameModel.prototype.addPlayer = function( userId, cb )
@@ -155,8 +176,8 @@ GameModel.prototype._addDefaultRoles = function( playerCount )
 
 GameModel.prototype._fillRolesRandomly = function( playerCount )
 {
-    //if we have too many players, just start adding random roles
-    for ( let remainingRoleIndex = this.availableRoles.length; remainingRoleIndex < playerCount && this.unusedRoles.length > 0; remainingRoleIndex++ )
+    //if we have too many players, just start adding random roles up to playerCount + 3 (3 is a game design choice)
+    for ( let remainingRoleIndex = this.availableRoles.length; remainingRoleIndex < playerCount + 3 && this.unusedRoles.length > 0; remainingRoleIndex++ )
     {
         const randomRoleIndex = Math.floor( Math.random() * this.unusedRoles.length );
         this.availableRoles.push( this.unusedRoles[ randomRoleIndex ] );
@@ -259,9 +280,16 @@ GameModel.prototype.doppelgangerCopy = function( doppelPlayerId, targetPlayerId,
         cb( "It's not the doppelganger's turn yet!" );
     }
     
-    this._goToNextNightPhase();
+    const newRole = this.roles[ targetPlayerId ];
     
-    this.roleData.doppelganger = this.roles[ targetPlayerId ];
+    //only go to the next phase if the doppelganger doesn't immediately have to do something else
+    //if they do, then they'll have to do that action and that will cause the next phase to happen
+    if ( newRole !== "seer" && newRole !== "robber" && newRole !== "troublemaker" && newRole !== "drunk" )
+    {
+        this._goToNextNightPhase();
+    }
+    
+    this.roleData.doppelganger = newRole;
     
     this.save( ( error ) =>
     {
@@ -287,7 +315,7 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
         return;
     }
     
-    if ( seerPlayerId === targetPlayerId )
+    if ( seerPlayerId === targetPlayerIdOrNull )
     {
         cb( "You can't target yourself!" );
         return;
@@ -436,8 +464,8 @@ GameModel.prototype.troublemakerSwap = function( troublemakerPlayerId, targetPla
 //reassigns the drunk with one of the cards from the center
 GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
 {
-    if ( !( this.initialRoles[ troublemakerPlayerId ] === "drunk" ||
-          ( this.initialRoles[ troublemakerPlayerId ] === "doppelganger" && this.roleData[ troublemakerPlayerId ] === "drunk" ) ) )
+    if ( !( this.initialRoles[ drunkPlayerId ] === "drunk" ||
+          ( this.initialRoles[ drunkPlayerId ] === "doppelganger" && this.roleData[ drunkPlayerId ] === "drunk" ) ) )
     {
         cb( "You're not a drunk!" );
         return;
@@ -457,7 +485,7 @@ GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
     
     this._goToNextNightPhase();
     
-    const availableIndex = Math.floor( Math.random() * this.availableRoles );
+    const availableIndex = Math.floor( Math.random() * this.availableRoles.length );
     this.roles[ drunkPlayerId ] = this.availableRoles[ availableIndex ];
     this.availableRoles[ availableIndex ] = "drunk";
     
@@ -521,7 +549,17 @@ GameModel.prototype._goToNextNightPhase = function()
         this.nightPhase++;
         const role = config.NightPhaseList[ this.nightPhase ];
         
-        if ( this.initialRoles[ role ] && config.ActiveNightRoles[ role ] )
+        let roleExists = false;
+        for ( let playerIndex = 0; playerIndex < this.players.length; playerIndex++ )
+        {
+            if ( this.initialRoles[this.players[playerIndex]] === role )
+            {
+                roleExists = true;
+                break;
+            }
+        }
+        
+        if ( roleExists && config.ActiveNightRoles[ role ] )
         {
             break;
         }

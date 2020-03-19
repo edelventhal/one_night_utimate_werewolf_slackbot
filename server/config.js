@@ -72,7 +72,7 @@ var Config = module.exports =
 Config.NightPhaseList.forEach( ( role, order ) =>
 {
     Config.NightPhase[role] = order;
-    Config.RoleList.splice( role, 0, order );
+    Config.RoleList.splice( order, 0, role );
 });
 
 //create the Role enum
