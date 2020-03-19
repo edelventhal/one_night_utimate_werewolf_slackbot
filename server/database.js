@@ -21,11 +21,11 @@ var Database = module.exports =
         
         if ( val instanceof Array )
         {
-            this.exists( key, function( exists )
+            this.exists( key, function( existsErr, exists )
             {
                 if ( exists )
                 {
-                    this.del( key, function()
+                    this.del( key, function( delErr )
                     {
                         this.push( key, val, cb );
                     }.bind(this));
@@ -44,7 +44,7 @@ var Database = module.exports =
         {
             client.set( key, this._getSetValue( val ), function( err, result )
             {
-                cb( !err );
+                cb( err, result );
             }.bind(this));
         }
     },
@@ -86,7 +86,7 @@ var Database = module.exports =
                     val = new Date( val );
                 }
                 
-                cb( val );
+                cb( err, val );
                 
             }.bind(this));
         }
@@ -103,14 +103,14 @@ var Database = module.exports =
             arr.length = length;
             var insertedCount = 0;
             
-            var insertFunc = function( index, err, val )
+            var insertFunc = function( index, err2, val )
             {
                 arr[ index ] = val;
                 insertedCount++;
                 
                 if ( insertedCount >= length )
                 {
-                    cb( arr );
+                    cb( err2, arr );
                 }
             };
             
@@ -122,7 +122,7 @@ var Database = module.exports =
             
             if ( length <= 0 )
             {
-                cb( [] );
+                cb( err, [] );
             }
         }.bind(this));
     },
@@ -133,11 +133,11 @@ var Database = module.exports =
         {
             if ( !err )
             {
-                cb( JSON.parse( result ) );
+                cb( err, JSON.parse( result ) );
             }
             else
             {
-                cb( {} );
+                cb( err, {} );
             }
         }.bind(this));
     },
@@ -147,7 +147,7 @@ var Database = module.exports =
         client.exists( key, function( err, reply )
         {
             this._log( "Redis: does " + key + " exist? " + ( reply === 1 ) );
-            cb( reply === 1 );
+            cb( err, reply === 1 );
         }.bind(this));
     },
     
@@ -156,7 +156,7 @@ var Database = module.exports =
         client.del( key, function( err, reply )
         {
             this._log( "Redis: deleting " + key );
-            cb( reply === 1 );
+            cb( err, reply === 1 );
         }.bind(this));
     },
     
@@ -169,7 +169,7 @@ var Database = module.exports =
         //a lua command for deleting everything with a prefix
         clientEvalFunc( [ "return redis.call('del', unpack(redis.call('keys', ARGV[1])))", 0, prefix + "*" ], function( err, reply )
         {
-            cb( reply === 1 );
+            cb( err, reply === 1 );
         });
     },
     
@@ -178,7 +178,7 @@ var Database = module.exports =
         client.flushall( function( err, reply )
         {
             this._log( "Redis: erasing entire DB!" );
-            cb( !!reply );
+            cb( err, reply );
         }.bind(this));
     },
     
@@ -190,7 +190,7 @@ var Database = module.exports =
         
         if ( arr.length <= 0 )
         {
-            cb( 0 );
+            cb( null, 0 );
         }
         else
         {
@@ -204,7 +204,7 @@ var Database = module.exports =
             this._log( "Redis: pushing to " + key + " " + JSON.stringify( arr ) );
             client.lpush( pushParams, function( err, newLength )
             {
-                cb( newLength );
+                cb( err, newLength );
             });
         }
     },
@@ -216,7 +216,7 @@ var Database = module.exports =
         client.lrem( listKey, 0, removedVal, function( err, reply )
         {
             this._log( "Redis: removed " + reply + " instances of " + removedVal + " from " + listKey );
-            cb( reply );
+            cb( err, reply );
         }.bind(this));
     },
     
@@ -249,7 +249,7 @@ var Database = module.exports =
         
         client.set( key, jsonString, function( err, result )
         {
-            cb( !err );
+            cb( err, result );
         });
     },
     
@@ -268,7 +268,7 @@ var Database = module.exports =
                     obj[ dataKey ] = data[ dataKey ];
                 }
             }
-            cb( !err );
+            cb( err, result );
         }.bind(this));
     },
     
@@ -278,14 +278,14 @@ var Database = module.exports =
         {
             if ( err )
             {
-                this.getArray( key, function( result2 )
+                this.getArray( key, function( err2, result2 )
                 {
-                    cb( JSON.stringify( result2 ) );
+                    cb( err2, JSON.stringify( result2 ) );
                 }.bind(this));
             }
             else
             {
-                cb( result );
+                cb( err, result );
             }
         }.bind(this));
     },
@@ -302,7 +302,7 @@ var Database = module.exports =
     {
         client.keys( "*", function( err, result )
         {
-            cb( result );
+            cb( err, result );
         }.bind(this));
     },
     
