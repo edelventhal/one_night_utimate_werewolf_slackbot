@@ -363,17 +363,17 @@ describe( "GameModel (Night)", function()
         });
     };
     
-    //these are cascading role functions – they *must* go in order
-    const doDoppelgangerCopy = function( cb )
+    //these are cascading role functions – they *must* be called in order
+    const doDoppelgangerCopy = function( targetRole, cb )
     {
         const doppelgangerPlayerId = findPlayerWithRole( "doppelganger" );
-        const targetPlayerId = findPlayerWithRole( "villager" );
-        game.doppelgangerCopy( doppelgangerPlayerId, targetPlayerId, cb );
+        const targetPlayerId = findPlayerWithRole( targetRole );
+        game.doppelgangerCopy( doppelgangerPlayerId, targetPlayerId, cb.bind( this, doppelgangerPlayerId ) );
     };
     
     const doSeerReveal = function( targetRole, cb )
     {
-        doDoppelgangerCopy( function()
+        doDoppelgangerCopy( "villager", function()
         {
             const seerPlayerId = findPlayerWithRole( "seer" );
             const targetPlayerId = findPlayerWithRole( targetRole );
@@ -457,10 +457,11 @@ describe( "GameModel (Night)", function()
     
     it( "should be able to swap to a villager as the doppelganger", function( cb )
     {
-        doDoppelgangerCopy( function( error, newRole )
+        doDoppelgangerCopy( "villager", function( doppelgangerPlayerId, error, newRole )
         {
             expect(error).toBeFalsy();
             expect(newRole).toEqual("villager");
+            expect(game.roleData.doppelganger).toEqual("villager");
             cb();
         });
     });
@@ -541,6 +542,117 @@ describe( "GameModel (Night)", function()
             cb();
         });
     });
+    
+    it( "should be able to reveal the villager's card as the doppelganger-seer", function( cb )
+    {
+        doDoppelgangerCopy( "seer", function( doppelgangerPlayerId, error, newRole )
+        {
+            expect(game.roleData.doppelganger).toEqual("seer");
+            const villagerPlayerId = findPlayerWithRole("villager");
+
+            game.seerReveal( doppelgangerPlayerId, villagerPlayerId, function( error, revealedRoles )
+            {
+                expect(error).toBeFalsy();
+                expect(revealedRoles.length).toEqual(1);
+                expect(revealedRoles[0]).toEqual("villager");
+                cb();
+            });
+        });
+    });
+
+    it( "should be able to reveal 2 unassigned cards as the doppelganger-seer", function( cb )
+    {
+        doDoppelgangerCopy( "seer", function( doppelgangerPlayerId, error, newRole )
+        {
+            expect(game.roleData.doppelganger).toEqual("seer");
+
+            game.seerReveal( doppelgangerPlayerId, null, function( error, revealedRoles )
+            {
+                expect(error).toBeFalsy();
+                expect(revealedRoles.length).toEqual(2);
+                expect(game.availableRoles.indexOf(revealedRoles[0])).toBeGreaterThanOrEqual(0);
+                expect(game.availableRoles.indexOf(revealedRoles[1])).toBeGreaterThanOrEqual(0);
+                //this is a bad test - it's possible to have 2 villagers, werewolves, or masons
+                //expect(revealedRoles[0]).not.toEqual(revealedRoles[1]);
+                cb();
+            });
+        });
+    });
+
+    it( "should be able to steal the villager as the doppelganger-robber", function( cb )
+    {
+        doDoppelgangerCopy( "robber", function( doppelgangerPlayerId, error, newRole )
+        {
+            expect(game.roleData.doppelganger).toEqual("robber");
+            const villagerPlayerId = findPlayerWithRole("villager");
+
+            game.robberSteal( doppelgangerPlayerId, villagerPlayerId, function( error, stolenRole )
+            {
+                expect(error).toBeFalsy();
+                expect(stolenRole).toEqual("villager");
+                expect(game.roles[doppelgangerPlayerId]).toEqual("villager");
+                expect(game.roles[villagerPlayerId]).toEqual("doppelganger");
+                expect(game.initialRoles[doppelgangerPlayerId]).toEqual("doppelganger");
+                expect(game.initialRoles[villagerPlayerId]).toEqual("villager");
+                cb();
+            });
+        });
+    });
+
+    it( "should be able to swap the werewolf's and seer's cards as the doppelganger-troublemaker", function( cb )
+    {
+        doDoppelgangerCopy( "troublemaker", function( doppelgangerPlayerId, error, newRole )
+        {
+            expect(game.roleData.doppelganger).toEqual("troublemaker");
+            const targetPlayerId0 = findPlayerWithRole("seer");
+            const targetPlayerId1 = findPlayerWithRole("werewolf");
+
+            game.troublemakerSwap( doppelgangerPlayerId, targetPlayerId0, targetPlayerId1, function( error )
+            {
+                expect(error).toBeFalsy();
+                expect(game.roles[targetPlayerId0]).toEqual("werewolf");
+                expect(game.roles[targetPlayerId1]).toEqual("seer");
+                expect(game.initialRoles[targetPlayerId0]).toEqual("seer");
+                expect(game.initialRoles[targetPlayerId1]).toEqual("werewolf");
+                cb();
+            });
+        });
+    });
+
+    it( "should be able to take a random card from the center as the doppelganger-drunk", function( cb )
+    {
+        doDoppelgangerCopy( "drunk", function( doppelgangerPlayerId, error, newRole )
+        {
+            expect(game.roleData.doppelganger).toEqual("drunk");
+            const availableRolesBefore = JSON.parse( JSON.stringify( game.availableRoles ) );
+
+            game.drunkSwap( doppelgangerPlayerId, function( error )
+            {
+                expect(error).toBeFalsy();
+                expect(game.roles[doppelgangerPlayerId]).not.toEqual("doppelganger");
+                expect(game.initialRoles[doppelgangerPlayerId]).toEqual("doppelganger");
+                expect(availableRolesBefore.indexOf(game.roles[doppelgangerPlayerId])).toBeGreaterThanOrEqual(0);
+                expect(game.availableRoles.indexOf("doppelganger")).toBeGreaterThanOrEqual(0);
+                cb();
+            });
+        });
+    });
+    
+    //TODO
+    // it( "should be able to view its own card as the doppelganger-insomniac", function( cb )
+    // {
+    //     doDoppelgangerCopy( "insomniac", function( doppelgangerPlayerId, error, newRole )
+    //     {expect(game.roleData.doppelganger).toEqual("insomniac");
+    //         //TODO - we actually need to wait for everyone else first
+    //         doInsomniacInspect( function( insomniacPlayerId, error, revealedRole )
+    //         {
+    //             expect(error).toBeFalsy();
+    //             expect(game.roles[insomniacPlayerId]).toEqual("insomniac");
+    //             expect(revealedRole).toEqual("insomniac");
+    //             cb();
+    //         });
+    //     });
+    // });
 });
 
 //NEXT - add tests for all the different doppelganger options

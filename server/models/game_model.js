@@ -309,9 +309,9 @@ GameModel.prototype.doppelgangerCopy = function( doppelPlayerId, targetPlayerId,
 GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, cb )
 {
     if ( !( this.initialRoles[ seerPlayerId ] === "seer" ||
-          ( this.initialRoles[ seerPlayerId ] === "doppelganger" && this.roleData[ seerPlayerId ] === "seer" ) ) )
+          ( this.initialRoles[ seerPlayerId ] === "doppelganger" && this.roleData.doppelganger === "seer" ) ) )
     {
-        cb( "You're not a seer!" );
+        cb( "You're not a seer! " + this.initialRoles[ seerPlayerId ] + " -- " + this.roleData.doppelganger  );
         return;
     }
     
@@ -328,7 +328,7 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
     }
     
     if ( !( this.nightPhase === config.NightPhase.seer ||
-          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ seerPlayerId ] === "seer" ) ) )
+          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "seer" ) ) )
     {
         cb( "It's not the seer's turn yet! " + this.nightPhase );
     }
@@ -370,7 +370,7 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
 GameModel.prototype.robberSteal = function( robberPlayerId, targetPlayerId, cb )
 {
     if ( !( this.initialRoles[ robberPlayerId ] === "robber" ||
-          ( this.initialRoles[ robberPlayerId ] === "doppelganger" && this.roleData[ robberPlayerId ] === "robber" ) ) )
+          ( this.initialRoles[ robberPlayerId ] === "doppelganger" && this.roleData.doppelganger === "robber" ) ) )
     {
         cb( "You're not a robber!" );
         return;
@@ -395,15 +395,16 @@ GameModel.prototype.robberSteal = function( robberPlayerId, targetPlayerId, cb )
     }
     
     if ( !( this.nightPhase === config.NightPhase.robber ||
-          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ robberPlayerId ] === "robber" ) ) )
+          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "robber" ) ) )
     {
         cb( "It's not the robber's turn yet! " + this.nightPhase );
     }
     
     this._goToNextNightPhase();
     
+    const initialRole = this.roles[ robberPlayerId ];
     this.roles[ robberPlayerId ] = this.roles[ targetPlayerId ];
-    this.roles[ targetPlayerId ] = "robber";
+    this.roles[ targetPlayerId ] = initialRole;
     
     this.save( ( error ) =>
     {
@@ -422,7 +423,7 @@ GameModel.prototype.robberSteal = function( robberPlayerId, targetPlayerId, cb )
 GameModel.prototype.troublemakerSwap = function( troublemakerPlayerId, targetPlayerId0, targetPlayerId1, cb )
 {
     if ( !( this.initialRoles[ troublemakerPlayerId ] === "troublemaker" ||
-          ( this.initialRoles[ troublemakerPlayerId ] === "doppelganger" && this.roleData[ troublemakerPlayerId ] === "troublemaker" ) ) )
+          ( this.initialRoles[ troublemakerPlayerId ] === "doppelganger" && this.roleData.doppelganger === "troublemaker" ) ) )
     {
         cb( "You're not a troublemaker!" );
         return;
@@ -447,7 +448,7 @@ GameModel.prototype.troublemakerSwap = function( troublemakerPlayerId, targetPla
     }
     
     if ( !( this.nightPhase === config.NightPhase.troublemaker ||
-          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ troublemakerPlayerId ] === "troublemaker" ) ) )
+          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "troublemaker" ) ) )
     {
         cb( "It's not the troublemaker's turn yet! " + this.nightPhase );
     }
@@ -465,7 +466,7 @@ GameModel.prototype.troublemakerSwap = function( troublemakerPlayerId, targetPla
 GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
 {
     if ( !( this.initialRoles[ drunkPlayerId ] === "drunk" ||
-          ( this.initialRoles[ drunkPlayerId ] === "doppelganger" && this.roleData[ drunkPlayerId ] === "drunk" ) ) )
+          ( this.initialRoles[ drunkPlayerId ] === "doppelganger" && this.roleData.doppelganger === "drunk" ) ) )
     {
         cb( "You're not a drunk!" );
         return;
@@ -478,7 +479,7 @@ GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
     }
     
     if ( !( this.nightPhase === config.NightPhase.drunk ||
-          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ drunkPlayerId ] === "drunk" ) ) )
+          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "drunk" ) ) )
     {
         cb( "It's not the drunk's turn yet! " + this.nightPhase );
     }
@@ -486,8 +487,9 @@ GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
     this._goToNextNightPhase();
     
     const availableIndex = Math.floor( Math.random() * this.availableRoles.length );
+    const initialRole = this.roles[ drunkPlayerId ];
     this.roles[ drunkPlayerId ] = this.availableRoles[ availableIndex ];
-    this.availableRoles[ availableIndex ] = "drunk";
+    this.availableRoles[ availableIndex ] = initialRole;
     
     this.save( cb );
 };
@@ -496,7 +498,7 @@ GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
 GameModel.prototype.insomniacInspect = function( insomniacPlayerId, cb )
 {
     if ( !( this.initialRoles[ insomniacPlayerId ] === "insomniac" ||
-          ( this.initialRoles[ insomniacPlayerId ] === "doppelganger" && this.roleData[ insomniacPlayerId ] === "insomniac" ) ) )
+          ( this.initialRoles[ insomniacPlayerId ] === "doppelganger" && this.roleData.doppelganger === "insomniac" ) ) )
     {
         cb( "You're not an insomniac!" );
         return;
@@ -509,7 +511,7 @@ GameModel.prototype.insomniacInspect = function( insomniacPlayerId, cb )
     }
     
     if ( !( this.nightPhase === config.NightPhase.insomniac ||
-          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData[ insomniacPlayerId ] === "insomniac" ) ) )
+          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "insomniac" ) ) )
     {
         cb( "It's not the insomniac's turn yet! " + this.nightPhase );
     }
