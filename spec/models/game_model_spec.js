@@ -371,27 +371,36 @@ describe( "GameModel (Night)", function()
         game.doppelgangerCopy( doppelgangerPlayerId, targetPlayerId, cb.bind( this, doppelgangerPlayerId ) );
     };
     
-    const doSeerReveal = function( targetRole, cb )
+    const doSeerReveal = function( targetRole, cb, skipDoppelganger )
     {
-        doDoppelgangerCopy( "villager", function()
+        const seerFunc = function()
         {
             const seerPlayerId = findPlayerWithRole( "seer" );
             const targetPlayerId = findPlayerWithRole( targetRole );
             game.seerReveal( seerPlayerId, targetPlayerId, cb );
-        });
+        };
+        
+        if ( skipDoppelganger )
+        {
+            seerFunc();
+        }
+        else
+        {
+            doDoppelgangerCopy( "villager", seerFunc );
+        }
     };
     
-    const doRobberSteal = function( cb )
+    const doRobberSteal = function( cb, skipDoppelganger )
     {
         doSeerReveal( null, function()
         {
             const robberPlayerId = findPlayerWithRole( "robber" );
             const targetPlayerId = findPlayerWithRole( "villager" );
             game.robberSteal( robberPlayerId, targetPlayerId, cb.bind( this, robberPlayerId, targetPlayerId ) );
-        });
+        }, skipDoppelganger);
     };
     
-    const doTroublemakerSwap = function( cb )
+    const doTroublemakerSwap = function( cb, skipDoppelganger )
     {
         doRobberSteal( function()
         {
@@ -399,25 +408,25 @@ describe( "GameModel (Night)", function()
             const seerPlayerId = findPlayerWithRole( "seer" );
             const werewolfPlayerId = findPlayerWithRole( "werewolf" );
             game.troublemakerSwap( troublemakerPlayerId, seerPlayerId, werewolfPlayerId, cb.bind( this, seerPlayerId, werewolfPlayerId ) );
-        });
+        }, skipDoppelganger);
     };
     
-    const doDrunkSwap = function( cb )
+    const doDrunkSwap = function( cb, skipDoppelganger )
     {
         doTroublemakerSwap( function()
         {
             const drunkPlayerId = findPlayerWithRole( "drunk" );
             game.drunkSwap( drunkPlayerId, cb.bind( this, drunkPlayerId, JSON.parse( JSON.stringify( game.availableRoles ) ) ) );
-        });
+        }, skipDoppelganger);
     };
     
-    const doInsomniacInspect = function( cb )
+    const doInsomniacInspect = function( cb, skipDoppelganger )
     {
         doDrunkSwap( function()
         {
             const insomniacPlayerId = findPlayerWithRole( "insomniac" );
             game.insomniacInspect( insomniacPlayerId, cb.bind( this, insomniacPlayerId ) );
-        });
+        }, skipDoppelganger);
     };
     
     beforeEach(function( cb )
@@ -638,21 +647,28 @@ describe( "GameModel (Night)", function()
         });
     });
     
-    //TODO
-    // it( "should be able to view its own card as the doppelganger-insomniac", function( cb )
-    // {
-    //     doDoppelgangerCopy( "insomniac", function( doppelgangerPlayerId, error, newRole )
-    //     {expect(game.roleData.doppelganger).toEqual("insomniac");
-    //         //TODO - we actually need to wait for everyone else first
-    //         doInsomniacInspect( function( insomniacPlayerId, error, revealedRole )
-    //         {
-    //             expect(error).toBeFalsy();
-    //             expect(game.roles[insomniacPlayerId]).toEqual("insomniac");
-    //             expect(revealedRole).toEqual("insomniac");
-    //             cb();
-    //         });
-    //     });
-    // });
+    it( "should be able to view its own card as the doppelganger-insomniac", function( cb )
+    {
+        doDoppelgangerCopy( "insomniac", function( doppelgangerPlayerId, error, newRole )
+        {
+            expect(game.roleData.doppelganger).toEqual("insomniac");
+            
+            //let the regular insomniac go - need to wait for the doppelganger's turn
+            doInsomniacInspect( function()
+            {
+                expect(game.roleData.doppelganger).toEqual("insomniac");
+                
+                //no we can do the insomniac's action as the doppelganger
+                game.insomniacInspect( doppelgangerPlayerId, function( error, revealedRole )
+                {
+                    expect(error).toBeFalsy();
+                    expect(game.roles[doppelgangerPlayerId]).toEqual("doppelganger");
+                    expect(revealedRole).toEqual("doppelganger");
+                    cb();
+                });
+            }, true );
+        });
+    });
 });
 
 //NEXT - add tests for all the different doppelganger options

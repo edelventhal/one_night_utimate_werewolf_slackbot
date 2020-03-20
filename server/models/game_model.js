@@ -277,7 +277,7 @@ GameModel.prototype.doppelgangerCopy = function( doppelPlayerId, targetPlayerId,
     
     if ( this.nightPhase !== config.NightPhase.doppelganger )
     {
-        cb( "It's not the doppelganger's turn yet! " + this.nightPhase );
+        cb( "It's not the doppelganger's turn yet!" );
     }
     
     const newRole = this.roles[ targetPlayerId ];
@@ -330,7 +330,7 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
     if ( !( this.nightPhase === config.NightPhase.seer ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "seer" ) ) )
     {
-        cb( "It's not the seer's turn yet! " + this.nightPhase );
+        cb( "It's not the seer's turn yet!" );
     }
     
     this._goToNextNightPhase();
@@ -397,7 +397,7 @@ GameModel.prototype.robberSteal = function( robberPlayerId, targetPlayerId, cb )
     if ( !( this.nightPhase === config.NightPhase.robber ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "robber" ) ) )
     {
-        cb( "It's not the robber's turn yet! " + this.nightPhase );
+        cb( "It's not the robber's turn yet!" );
     }
     
     this._goToNextNightPhase();
@@ -450,7 +450,7 @@ GameModel.prototype.troublemakerSwap = function( troublemakerPlayerId, targetPla
     if ( !( this.nightPhase === config.NightPhase.troublemaker ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "troublemaker" ) ) )
     {
-        cb( "It's not the troublemaker's turn yet! " + this.nightPhase );
+        cb( "It's not the troublemaker's turn yet!" );
     }
     
     this._goToNextNightPhase();
@@ -481,7 +481,7 @@ GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
     if ( !( this.nightPhase === config.NightPhase.drunk ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "drunk" ) ) )
     {
-        cb( "It's not the drunk's turn yet! " + this.nightPhase );
+        cb( "It's not the drunk's turn yet!" );
     }
     
     this._goToNextNightPhase();
@@ -500,7 +500,7 @@ GameModel.prototype.insomniacInspect = function( insomniacPlayerId, cb )
     if ( !( this.initialRoles[ insomniacPlayerId ] === "insomniac" ||
           ( this.initialRoles[ insomniacPlayerId ] === "doppelganger" && this.roleData.doppelganger === "insomniac" ) ) )
     {
-        cb( "You're not an insomniac!" );
+        cb( "You're not an insomniac! " + this.initialRoles[ insomniacPlayerId ] + " -- " + this.roleData.doppelganger );
         return;
     }
     
@@ -511,9 +511,9 @@ GameModel.prototype.insomniacInspect = function( insomniacPlayerId, cb )
     }
     
     if ( !( this.nightPhase === config.NightPhase.insomniac ||
-          ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "insomniac" ) ) )
+          ( this.nightPhase === config.NightPhase["doppelganger-insomniac"] && this.roleData.doppelganger === "insomniac" ) ) )
     {
-        cb( "It's not the insomniac's turn yet! " + this.nightPhase );
+        cb( "It's not the insomniac's turn yet!" );
     }
     
     this._goToNextNightPhase();
@@ -549,7 +549,8 @@ GameModel.prototype._goToNextNightPhase = function()
     while ( this.nightPhase <= config.NightPhaseList.length )
     {
         this.nightPhase++;
-        const role = config.NightPhaseList[ this.nightPhase ];
+        const rawRole = config.NightPhaseList[ this.nightPhase ];
+        const role = rawRole === "doppelganger-insomniac" ? "doppelganger" : rawRole;
         
         let roleExists = false;
         for ( let playerIndex = 0; playerIndex < this.players.length; playerIndex++ )
@@ -559,6 +560,12 @@ GameModel.prototype._goToNextNightPhase = function()
                 roleExists = true;
                 break;
             }
+        }
+        
+        //we only use the doppelganger-insomniac phase if the doppelganger selected this role
+        if ( rawRole === "doppelganger-insomniac" && this.roleData.doppelganger !== "insomniac" )
+        {
+            roleExists = false;
         }
         
         if ( roleExists && config.ActiveNightRoles[ role ] )

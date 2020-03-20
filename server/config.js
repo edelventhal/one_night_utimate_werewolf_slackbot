@@ -18,7 +18,8 @@ var Config = module.exports =
         "robber", //5
         "troublemaker", //6
         "drunk", //7
-        "insomniac" //8
+        "insomniac", //8
+        "doppelganger-insomniac" //9, edge case
     ],
     
     NightPhase:
@@ -72,7 +73,12 @@ var Config = module.exports =
 Config.NightPhaseList.forEach( ( role, order ) =>
 {
     Config.NightPhase[role] = order;
-    Config.RoleList.splice( order, 0, role );
+    
+    //don't add a role for this, it's an edge case and not a real role
+    if ( role !== "doppelganger-insomniac" )
+    {
+        Config.RoleList.splice( order, 0, role );
+    }
 });
 
 //create the Role enum
