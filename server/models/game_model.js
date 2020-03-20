@@ -278,6 +278,7 @@ GameModel.prototype.doppelgangerCopy = function( doppelPlayerId, targetPlayerId,
     if ( this.nightPhase !== config.NightPhase.doppelganger )
     {
         cb( "It's not the doppelganger's turn yet!" );
+        return;
     }
     
     const newRole = this.roles[ targetPlayerId ];
@@ -311,7 +312,7 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
     if ( !( this.initialRoles[ seerPlayerId ] === "seer" ||
           ( this.initialRoles[ seerPlayerId ] === "doppelganger" && this.roleData.doppelganger === "seer" ) ) )
     {
-        cb( "You're not a seer! " + this.initialRoles[ seerPlayerId ] + " -- " + this.roleData.doppelganger  );
+        cb( "You're not a seer!" );
         return;
     }
     
@@ -331,9 +332,8 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "seer" ) ) )
     {
         cb( "It's not the seer's turn yet!" );
+        return;
     }
-    
-    this._goToNextNightPhase();
     
     if ( targetPlayerIdOrNull )
     {
@@ -343,6 +343,7 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
             return;
         }
         
+        this._goToNextNightPhase();
         cb( null, [ this.roles[ targetPlayerIdOrNull ] ] );
     }
     else
@@ -362,6 +363,7 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
             possibleRoles.splice( possibleRoleIndex, 1 );
         }
         
+        this._goToNextNightPhase();
         cb( null, resultsArr );
     }
 };
@@ -398,6 +400,7 @@ GameModel.prototype.robberSteal = function( robberPlayerId, targetPlayerId, cb )
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "robber" ) ) )
     {
         cb( "It's not the robber's turn yet!" );
+        return;
     }
     
     this._goToNextNightPhase();
@@ -451,6 +454,7 @@ GameModel.prototype.troublemakerSwap = function( troublemakerPlayerId, targetPla
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "troublemaker" ) ) )
     {
         cb( "It's not the troublemaker's turn yet!" );
+        return;
     }
     
     this._goToNextNightPhase();
@@ -477,13 +481,14 @@ GameModel.prototype.drunkSwap = function( drunkPlayerId, cb )
         cb( "That can only be done at night!" );
         return;
     }
-    
+        
     if ( !( this.nightPhase === config.NightPhase.drunk ||
           ( this.nightPhase === config.NightPhase.doppelganger && this.roleData.doppelganger === "drunk" ) ) )
     {
         cb( "It's not the drunk's turn yet!" );
+        return;
     }
-    
+        
     this._goToNextNightPhase();
     
     const availableIndex = Math.floor( Math.random() * this.availableRoles.length );
@@ -514,6 +519,7 @@ GameModel.prototype.insomniacInspect = function( insomniacPlayerId, cb )
           ( this.nightPhase === config.NightPhase["doppelganger-insomniac"] && this.roleData.doppelganger === "insomniac" ) ) )
     {
         cb( "It's not the insomniac's turn yet!" );
+        return;
     }
     
     this._goToNextNightPhase();
