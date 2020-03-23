@@ -2,6 +2,8 @@ var GameModel = require( "../../../../server/models/game_model.js" );
 var config = require( "../../../../server/config.js" );
 var utils = require( "../../../utility/testUtils.js" );
 var game;
+var doppelgangerPlayerId;
+var villagerPlayerId;
 
 describe( "Doppelganger", function()
 {
@@ -10,6 +12,8 @@ describe( "Doppelganger", function()
         utils.createTestGame( function( setGame )
         {
             game = setGame;
+            doppelgangerPlayerId = utils.findPlayerWithRole( game, "doppelganger" );
+            villagerPlayerId = utils.findPlayerWithRole( game, "villager" );
             cb();
         });
     });
@@ -140,6 +144,58 @@ describe( "Doppelganger", function()
                     cb();
                 });
             }, true );
+        });
+    });
+    
+    it( "should throw an error when they don't go in order", function( cb )
+    {
+        //since the doppelganger is first, they need to finish their turn,
+        //then try to go again in order to cause this error
+        utils.doDoppelgangerCopy( game, "villager", function( doppelgangerPlayerId, error, newRole )
+        {
+            game.doppelgangerCopy( doppelgangerPlayerId, villagerPlayerId, function( error )
+            {
+                expect(error).toEqual("It's not the doppelganger's turn yet!");
+                cb();
+            });
+        });
+    });
+    
+    it( "should throw an error when a non-doppelganger tries to copy a card", function( cb )
+    {
+        game.doppelgangerCopy( villagerPlayerId, doppelgangerPlayerId, function( error )
+        {
+            expect(error).toEqual("You're not a doppelganger!");
+            cb();
+        });
+    });
+    
+    it( "should throw an error when they try to copy during the day", function( cb )
+    {
+        game.phase = config.GamePhase.Day;
+    
+        game.doppelgangerCopy( doppelgangerPlayerId, villagerPlayerId, function( error )
+        {
+            expect(error).toEqual("That can only be done at night!");
+            cb();
+        });
+    });
+    
+    it( "should throw an error when they try to copy themselves", function( cb )
+    {
+        game.doppelgangerCopy( doppelgangerPlayerId, doppelgangerPlayerId, function( error )
+        {
+            expect(error).toEqual("You can't target yourself!");
+            cb();
+        });
+    });
+    
+    it( "should throw an error when they target a non-existent player", function( cb )
+    {
+        game.doppelgangerCopy( doppelgangerPlayerId, "fakePlayerId", function( error )
+        {
+            expect(error).toEqual("That player is not in the game!");
+            cb();
         });
     });
 });

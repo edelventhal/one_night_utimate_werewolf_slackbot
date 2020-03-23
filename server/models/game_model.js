@@ -505,7 +505,7 @@ GameModel.prototype.insomniacInspect = function( insomniacPlayerId, cb )
     if ( !( this.initialRoles[ insomniacPlayerId ] === "insomniac" ||
           ( this.initialRoles[ insomniacPlayerId ] === "doppelganger" && this.roleData.doppelganger === "insomniac" ) ) )
     {
-        cb( "You're not an insomniac! " + this.initialRoles[ insomniacPlayerId ] + " -- " + this.roleData.doppelganger );
+        cb( "You're not an insomniac!" );
         return;
     }
     
