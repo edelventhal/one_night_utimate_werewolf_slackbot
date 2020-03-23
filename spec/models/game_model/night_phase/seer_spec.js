@@ -76,7 +76,7 @@ describe( "Seer", function()
         });
     });
     
-    it( "should throw an error when the try to reveal during the day", function( cb )
+    it( "should throw an error when they try to reveal during the day", function( cb )
     {
         game.phase = config.GamePhase.Day;
     
