@@ -3,7 +3,7 @@ var config = require( "../../../../server/config.js" );
 var utils = require( "../../../utility/testUtils.js" );
 var game;
 
-describe( "GameModel (Night Insomniac)", function()
+describe( "Insomniac", function()
 {
     beforeEach(function( cb )
     {
@@ -14,7 +14,7 @@ describe( "GameModel (Night Insomniac)", function()
         });
     });
     
-    it( "should be able to view its own card as the insomniac", function( cb )
+    it( "should be able to view its own card", function( cb )
     {
         utils.doInsomniacInspect( game, function( insomniacPlayerId, error, revealedRole )
         {

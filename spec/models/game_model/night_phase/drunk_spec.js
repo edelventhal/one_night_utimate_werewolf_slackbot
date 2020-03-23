@@ -3,7 +3,7 @@ var config = require( "../../../../server/config.js" );
 var utils = require( "../../../utility/testUtils.js" );
 var game;
 
-describe( "GameModel (Night Drunk)", function()
+describe( "Drunk", function()
 {
     beforeEach(function( cb )
     {
@@ -14,7 +14,7 @@ describe( "GameModel (Night Drunk)", function()
         });
     });
     
-    it( "should be able to take a random card from the center as the drunk", function( cb )
+    it( "should be able to take a random card from the center", function( cb )
     {
         utils.doDrunkSwap( game, function( drunkPlayerId, availableRolesBefore, error )
         {
@@ -27,7 +27,7 @@ describe( "GameModel (Night Drunk)", function()
         });
     });
     
-    it( "should throw an error when the drunk doesn't go in order", function( cb )
+    it( "should throw an error when going out of order", function( cb )
     {
         const drunkPlayerId = utils.findPlayerWithRole( game,"drunk");
         game.drunkSwap( drunkPlayerId, function( error )

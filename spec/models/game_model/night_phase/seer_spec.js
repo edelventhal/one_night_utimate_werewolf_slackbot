@@ -3,7 +3,7 @@ var config = require( "../../../../server/config.js" );
 var utils = require( "../../../utility/testUtils.js" );
 var game;
 
-describe( "GameModel (Night Seer)", function()
+describe( "Seer", function()
 {
     beforeEach(function( cb )
     {
@@ -14,7 +14,7 @@ describe( "GameModel (Night Seer)", function()
         });
     });
     
-    it( "should be able to reveal the villager's card as the seer", function( cb )
+    it( "should be able to reveal the villager's card", function( cb )
     {
         utils.doSeerReveal( game, "villager", function( error, revealedRoles )
         {
@@ -25,7 +25,7 @@ describe( "GameModel (Night Seer)", function()
         });
     });
     
-    it( "should be able to reveal 2 unassigned cards as the seer", function( cb )
+    it( "should be able to reveal 2 unassigned cards", function( cb )
     {
         utils.doSeerReveal( game, null, function( error, revealedRoles )
         {
@@ -52,7 +52,7 @@ describe( "GameModel (Night Seer)", function()
         });
     });
     
-    it( "should throw an error when a seer tries to reveal themselves", function( cb )
+    it( "should throw an error when they try to reveal themselves", function( cb )
     {
         utils.doDoppelgangerCopy( game, "villager", function()
         {
@@ -65,7 +65,7 @@ describe( "GameModel (Night Seer)", function()
         });
     });
     
-    it( "should throw an error when a seer tries to reveal during the day", function( cb )
+    it( "should throw an error when the try to reveal during the day", function( cb )
     {
         utils.doDoppelgangerCopy( game, "villager", function()
         {
@@ -80,7 +80,7 @@ describe( "GameModel (Night Seer)", function()
         });
     });
     
-    it( "should throw an error when a seer doesn't go in order", function( cb )
+    it( "should throw an error when they don't go in order", function( cb )
     {
         const seerPlayerId = utils.findPlayerWithRole( game,"seer");
         game.seerReveal( seerPlayerId, null, function( error )
@@ -90,7 +90,7 @@ describe( "GameModel (Night Seer)", function()
         });
     });
     
-    it( "should throw an error when a seer targets a non-existent player", function( cb )
+    it( "should throw an error when they target a non-existent player", function( cb )
     {
         utils.doDoppelgangerCopy( game, "villager", function()
         {

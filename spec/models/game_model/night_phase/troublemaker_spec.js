@@ -4,7 +4,7 @@ var utils = require( "../../../utility/testUtils.js" );
 var game;
 
 
-describe( "GameModel (Night Troublemaker)", function()
+describe( "Troublemaker", function()
 {
     beforeEach(function( cb )
     {
@@ -15,7 +15,7 @@ describe( "GameModel (Night Troublemaker)", function()
         });
     });
     
-    it( "should be able to swap the werewolf's and seer's cards as the troublemaker", function( cb )
+    it( "should be able to swap the werewolf's and seer's cards", function( cb )
     {
         utils.doTroublemakerSwap( game, function( targetPlayerId0, targetPlayerId1, error )
         {

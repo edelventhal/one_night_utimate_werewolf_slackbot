@@ -3,7 +3,7 @@ var config = require( "../../../../server/config.js" );
 var utils = require( "../../../utility/testUtils.js" );
 var game;
 
-describe( "GameModel (Night Doppelganger)", function()
+describe( "Doppelganger", function()
 {
     beforeEach(function( cb )
     {
@@ -14,7 +14,7 @@ describe( "GameModel (Night Doppelganger)", function()
         });
     });
     
-    it( "should be able to swap to a villager as the doppelganger", function( cb )
+    it( "should be able to swap to a villager", function( cb )
     {
         utils.doDoppelgangerCopy( game, "villager", function( doppelgangerPlayerId, error, newRole )
         {
@@ -25,7 +25,7 @@ describe( "GameModel (Night Doppelganger)", function()
         });
     });
     
-    it( "should be able to reveal the villager's card as the doppelganger-seer", function( cb )
+    it( "should be able to reveal the villager's card as a seer", function( cb )
     {
         utils.doDoppelgangerCopy( game, "seer", function( doppelgangerPlayerId, error, newRole )
         {
@@ -42,7 +42,7 @@ describe( "GameModel (Night Doppelganger)", function()
         });
     });
 
-    it( "should be able to reveal 2 unassigned cards as the doppelganger-seer", function( cb )
+    it( "should be able to reveal 2 unassigned cards as a seer", function( cb )
     {
         utils.doDoppelgangerCopy( game, "seer", function( doppelgangerPlayerId, error, newRole )
         {
@@ -61,7 +61,7 @@ describe( "GameModel (Night Doppelganger)", function()
         });
     });
 
-    it( "should be able to steal the villager as the doppelganger-robber", function( cb )
+    it( "should be able to steal the villager as a robber", function( cb )
     {
         utils.doDoppelgangerCopy( game, "robber", function( doppelgangerPlayerId, error, newRole )
         {
@@ -81,7 +81,7 @@ describe( "GameModel (Night Doppelganger)", function()
         });
     });
 
-    it( "should be able to swap the werewolf's and seer's cards as the doppelganger-troublemaker", function( cb )
+    it( "should be able to swap the werewolf's and seer's cards as a troublemaker", function( cb )
     {
         utils.doDoppelgangerCopy( game, "troublemaker", function( doppelgangerPlayerId, error, newRole )
         {
@@ -101,7 +101,7 @@ describe( "GameModel (Night Doppelganger)", function()
         });
     });
 
-    it( "should be able to take a random card from the center as the doppelganger-drunk", function( cb )
+    it( "should be able to take a random card from the center as a drunk", function( cb )
     {
         utils.doDoppelgangerCopy( game, "drunk", function( doppelgangerPlayerId, error, newRole )
         {
@@ -120,7 +120,7 @@ describe( "GameModel (Night Doppelganger)", function()
         });
     });
     
-    it( "should be able to view its own card as the doppelganger-insomniac", function( cb )
+    it( "should be able to view its own card as an insomniac", function( cb )
     {
         utils.doDoppelgangerCopy( game, "insomniac", function( doppelgangerPlayerId, error, newRole )
         {

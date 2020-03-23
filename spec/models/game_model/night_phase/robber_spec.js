@@ -3,7 +3,7 @@ var config = require( "../../../../server/config.js" );
 var utils = require( "../../../utility/testUtils.js" );
 var game;
 
-describe( "GameModel (Night Robber)", function()
+describe( "Robber", function()
 {
     beforeEach(function( cb )
     {
@@ -14,7 +14,7 @@ describe( "GameModel (Night Robber)", function()
         });
     });
     
-    it( "should be able to steal the villager as the robber", function( cb )
+    it( "should be able to steal the villager", function( cb )
     {
         
         utils.doRobberSteal( game, function( robberPlayerId, targetPlayerId, error, stolenRole )
