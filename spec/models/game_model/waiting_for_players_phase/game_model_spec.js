@@ -208,8 +208,16 @@ describe( "GameModel (WaitingForPlayers)", function()
         
         cb();
     });
+    
+    it( "should go to the next phase after all players have gone", function( cb )
+    {
+        utils.createTestGame( function( game )
+        {
+            utils.doInsomniacInspect( game, function()
+            {
+                expect(game.phase).toEqual(config.GamePhase.Day);
+                cb();
+            });
+        });
+    });
 });
-
-//NEXT NEXT - add tests for all the error checking, like when you try to go not on your turn
-//NEXT NEXT NEXT - put in the controller and all the slack interactions, put the slack stuff
-//behind an abstraction so it could easily be changed for discord etc
