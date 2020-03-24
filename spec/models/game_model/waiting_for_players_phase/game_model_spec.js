@@ -80,6 +80,27 @@ describe( "GameModel (WaitingForPlayers)", function()
         });
     });
     
+    it( "should not be able to remove players from an already started game", function( cb )
+    {
+        utils.createTestGame( function( game )
+        {
+            game.removePlayer( utils.dummyPlayerIds[0], function( error )
+            {
+                expect(error).toEqual( "The game has already started! Dropping isn't possible!" );
+                cb();
+            });
+        });
+    });
+    
+    it( "should not be able to remove a player who isn't in the game", function( cb )
+    {
+        game.removePlayer( utils.dummyPlayerIds[utils.dummyPlayerIds.length-1], function( error )
+        {
+            expect(error).toEqual( "That player already isn't in the game!" );
+            cb();
+        });
+    });
+    
     it( "should be able to add a role", function( cb )
     {
         const unusedRoleCount = game.unusedRoles.length;

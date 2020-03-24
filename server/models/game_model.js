@@ -152,15 +152,23 @@ GameModel.prototype.addPlayer = function( userId, cb )
 
 GameModel.prototype.removePlayer = function( userId, cb )
 {
-    let userIndex = this.players.indexOf( userId );
-    if ( userIndex < 0 )
+    //do we really want this?
+    if ( this.phase !== config.GamePhase.WaitingForPlayers )
     {
-        cb();
+        cb( "The game has already started! Dropping isn't possible!" );
     }
     else
     {
-        this.players.splice( userIndex, 1 );
-        this.save( cb );
+        let userIndex = this.players.indexOf( userId );
+        if ( userIndex < 0 )
+        {
+            cb( "That player already isn't in the game!" );
+        }
+        else
+        {
+            this.players.splice( userIndex, 1 );
+            this.save( cb );
+        }
     }
 };
 
