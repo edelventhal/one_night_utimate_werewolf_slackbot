@@ -115,6 +115,18 @@ describe( "GameModel (WaitingForPlayers)", function()
         });
     });
     
+    it( "should not be able to add a role to an already started game", function( cb )
+    {
+        utils.createTestGame( function( game )
+        {
+            game.addRole( "villager", function( error )
+            {
+                expect(error).toEqual( "The game has already started!" );
+                cb();
+            });
+        });
+    });
+    
     it( "should be able to remove a role", function( cb )
     {
         const unusedRoleCount = game.unusedRoles.length;
@@ -126,6 +138,18 @@ describe( "GameModel (WaitingForPlayers)", function()
                 expect(error2).toBeFalsy();
                 expect(game.availableRoles.length).toEqual(0);
                 expect(game.unusedRoles.length).toEqual(unusedRoleCount);
+                cb();
+            });
+        });
+    });
+    
+    it( "should not be able to remove a role from an already started game", function( cb )
+    {
+        utils.createTestGame( function( game )
+        {
+            game.removeRole( "villager", function( error )
+            {
+                expect(error).toEqual( "The game has already started!" );
                 cb();
             });
         });

@@ -216,30 +216,44 @@ GameModel.prototype._fillRolesRandomly = function( playerCount )
 
 GameModel.prototype.addRole = function( role, cb )
 {
-    role = role.toLowerCase();
-    let index = this.unusedRoles.indexOf( role );
-    if ( index < 0 )
+    if ( this.phase !== config.GamePhase.WaitingForPlayers )
     {
-        cb( "You can't add another " + role + " to this game." );
-        return;
+        cb( "The game has already started!" );
     }
-    this.unusedRoles.splice( index, 1 );
-    this.availableRoles.push( role );
-    this.save( cb );
+    else
+    {
+        role = role.toLowerCase();
+        let index = this.unusedRoles.indexOf( role );
+        if ( index < 0 )
+        {
+            cb( "You can't add another " + role + " to this game." );
+            return;
+        }
+        this.unusedRoles.splice( index, 1 );
+        this.availableRoles.push( role );
+        this.save( cb );
+    }
 }
 
 GameModel.prototype.removeRole = function( role, cb )
 {
-    role = role.toLowerCase();
-    let index = this.availableRoles.indexOf( role );
-    if ( index < 0 )
+    if ( this.phase !== config.GamePhase.WaitingForPlayers )
     {
-        cb( "There is not a " + role + " in this game." );
-        return;
+        cb( "The game has already started!" );
     }
-    this.availableRoles.splice( index, 1 );
-    this.unusedRoles.push( role );
-    this.save( cb );
+    else
+    {
+        role = role.toLowerCase();
+        let index = this.availableRoles.indexOf( role );
+        if ( index < 0 )
+        {
+            cb( "There is not a " + role + " in this game." );
+            return;
+        }
+        this.availableRoles.splice( index, 1 );
+        this.unusedRoles.push( role );
+        this.save( cb );
+    }
 }
 
 GameModel.prototype._getCountForRole = function( role )
