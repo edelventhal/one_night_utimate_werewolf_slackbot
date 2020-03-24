@@ -259,22 +259,33 @@ GameModel.prototype._getCountForRole = function( role )
 
 GameModel.prototype.startGame = function( cb )
 {
-    //if we have no roles, fill them with the defaults
-    if ( this.availableRoles.length <= 0 )
+    if ( this.phase === config.GamePhase.Finished )
     {
-        this._addDefaultRoles( this.players.length );
+        cb( "The game was completed. Create a new one!" );
     }
-    //just in case, fill up any additional roles that are needed
+    else if ( this.phase !== config.GamePhase.WaitingForPlayers )
+    {
+        cb( "The game has already started!" );
+    }
     else
     {
-        this._fillRolesRandomly( this.players.length );
+        //if we have no roles, fill them with the defaults
+        if ( this.availableRoles.length <= 0 )
+        {
+            this._addDefaultRoles( this.players.length );
+        }
+        //just in case, fill up any additional roles that are needed
+        else
+        {
+            this._fillRolesRandomly( this.players.length );
+        }
+    
+        this._assignRoles();
+        //TODO - need to Slack private message all the players their roles
+        this.phase++;
+    
+        this.save( cb );
     }
-    
-    this._assignRoles();
-    //TODO - need to Slack private message all the players their roles
-    this.phase++;
-    
-    this.save( cb );
 };
 
 //calls cb with the viewed card passed as param 2, and reassigns the doppelganger

@@ -186,6 +186,32 @@ describe( "GameModel (WaitingForPlayers)", function()
         });
     });
     
+    it( "should not be able to start an already started game", function( cb )
+    {
+        utils.createTestGame( function( game )
+        {
+            game.startGame( function( error )
+            {
+                expect(error).toEqual( "The game has already started!" );
+                cb();
+            });
+        });
+    });
+    
+    it( "should not be able to start a completed game, and should be told to restart", function( cb )
+    {
+        utils.createTestGame( function( game )
+        {
+            game.phase = config.GamePhase.Finished;
+            
+            game.startGame( function( error )
+            {
+                expect(error).toEqual( "The game was completed. Create a new one!" );
+                cb();
+            });
+        });
+    });
+    
     it( "should automatically fill default roles", function( cb )
     {
         const targetPlayerCount = 5;
