@@ -13,7 +13,8 @@ var TestUtils = module.exports =
         "#6",
         "#7",
         "#8",
-        "#9"
+        "#9",
+        "#10"
     ],
 
     dummyRoles:

@@ -58,6 +58,7 @@ var GameModel = module.exports = function( creatorId, cb )
             database.push( GAMES_LIST_KEY, this.id, function()
             {
                 this._initializeNewGame( true );
+                this.players.push( this.id ); //the creating player always joins
                 this.save( cb.bind( this, this, true ) );
             }.bind(this));
         }
@@ -133,6 +134,14 @@ GameModel.prototype.addPlayer = function( userId, cb )
     if ( this.players.indexOf( userId ) >= 0 )
     {
         cb( "That player is already in the game." );
+    }
+    else if ( this.phase !== config.GamePhase.WaitingForPlayers )
+    {
+        cb( "The game has already started." );
+    }
+    else if ( this.players.length >= config.maximumPlayerCount )
+    {
+        cb( "The game is full." );
     }
     else
     {

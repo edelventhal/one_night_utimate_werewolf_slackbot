@@ -38,6 +38,35 @@ describe( "GameModel (WaitingForPlayers)", function()
         });
     });
     
+    it( "should not be able to add players to an already started game", function( cb )
+    {
+        utils.createTestGame( function( game )
+        {
+            game.addPlayer( utils.dummyPlayerIds[utils.dummyPlayerIds.length-1], function( error )
+            {
+                expect(error).toEqual( "The game has already started." );
+                cb();
+            });
+        });
+    });
+    
+    it( "should not be able to add players to a full game", function( cb )
+    {
+        var addedNewPlayerFunc = function( playerCount, error )
+        {
+            if ( playerCount > config.maximumPlayerCount )
+            {
+                expect(error).toEqual( "The game is full." );
+                cb();
+            }
+        };
+        
+        for ( let playerCount = game.players.length; playerCount <= config.maximumPlayerCount + 1; playerCount++ )
+        {
+            game.addPlayer( utils.dummyPlayerIds[playerCount], addedNewPlayerFunc.bind( this, playerCount ) );
+        }
+    });
+    
     it( "should be able to remove a player", function( cb )
     {
         game.addPlayer( utils.dummyPlayerIds[0], function( error )

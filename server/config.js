@@ -66,7 +66,11 @@ var Config = module.exports =
         "troublemaker": true,
         "drunk": true,
         "insomniac": true
-    }
+    },
+    
+    //driven by the game design
+    minimumPlayerCount: 3,
+    maximumPlayerCount: 10
 };
 
 //create the NightPhase enum and fill the RoleList
