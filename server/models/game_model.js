@@ -10,9 +10,9 @@ const GAME_KEY_PREFIX = "game.";
 
 //creates a new game and calls cb when done, with the game and a boolean parameter on whether this is a new game.
 //automatically loads the game from the db if it's an existing game, otherwise creates a new one.
-var GameModel = module.exports = function( gameId, cb )
+var GameModel = module.exports = function( creatorId, cb )
 {
-    this.id = gameId;
+    this.id = creatorId;
     
     //all players in this game by id
     this.players = [];
@@ -57,16 +57,20 @@ var GameModel = module.exports = function( gameId, cb )
         {
             database.push( GAMES_LIST_KEY, this.id, function()
             {
-                this._initializeNewGame();
+                this._initializeNewGame( true );
                 this.save( cb.bind( this, this, true ) );
             }.bind(this));
         }
     }.bind( this ));
 };
 
-GameModel.prototype._initializeNewGame = function()
+GameModel.prototype._initializeNewGame = function( clearPlayers )
 {
-    this.players = [];
+    if ( clearPlayers )
+    {
+        this.players = [];
+    }
+    
     this.phase = 0;
     this.nightPhase = 0;
     this.availableRoles = [];
@@ -110,9 +114,17 @@ GameModel.prototype.remove = function( cb )
     }.bind(this));
 };
 
+//clears all settings
 GameModel.prototype.reset = function( cb )
 {
-    this._initializeNewGame();
+    this._initializeNewGame( true );
+    this.save( cb );
+};
+
+//keeps the players, but clears all the gameplay data
+GameModel.prototype.restart = function( cb )
+{
+    this._initializeNewGame( false );
     this.save( cb );
 };
 
