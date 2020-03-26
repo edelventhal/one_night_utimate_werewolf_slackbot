@@ -67,6 +67,7 @@ var Server = module.exports.Server =
                 }
                 
                 this._addRoutes( this._getRoutes( controller, prefix ), "get" );
+                this._addRoutes( this._getRoutes( controller, prefix ), "post" );
                 
                 if ( file === this.defaultControllerName + "_controller.js" )
                 {
