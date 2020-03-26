@@ -4,7 +4,6 @@
 
 var utility = require( "./utility.js" );
 
-//database-related utility functions
 var SlackAPI = module.exports =
 {
     getUsersList: function( cb )
@@ -16,5 +15,11 @@ var SlackAPI = module.exports =
     {
         const payload = { channel: ( channel || process.env.SLACK_CHANNEL ), text: message };
         utility.httpsPostJson( "https://slack.com/api/chat.postMessage", payload, process.env.SLACK_AUTH, cb );
+    },
+    
+    postPrivately: function( message, channel, user, cb )
+    {
+        const payload = { channel: ( channel || process.env.SLACK_CHANNEL ), text: message, user: user };
+        utility.httpsPostJson( "https://slack.com/api/chat.postEphemeral", payload, process.env.SLACK_AUTH, cb );
     }
 }

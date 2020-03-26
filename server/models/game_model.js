@@ -296,6 +296,7 @@ GameModel.prototype.startGame = function( cb )
     
         this._assignRoles();
         //TODO - need to Slack private message all the players their roles
+        //NEXT - do the above with an abstracted API so Discord could work too, start testing for real
         this.phase++;
     
         this.save( cb );

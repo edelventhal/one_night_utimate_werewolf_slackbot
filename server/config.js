@@ -70,7 +70,13 @@ var Config = module.exports =
     
     //driven by the game design
     minimumPlayerCount: 3,
-    maximumPlayerCount: 10
+    maximumPlayerCount: 10,
+    
+    ChatApp:
+    {
+        Slack: "slack",
+        Discord: "discord"
+    }
 };
 
 //create the NightPhase enum and fill the RoleList
