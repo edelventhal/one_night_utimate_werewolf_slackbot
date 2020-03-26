@@ -29,6 +29,7 @@ var Server = module.exports.Server =
     {
         //support JSON, urlencoded, and multipart requests
         app.use( bodyParser.json( { extended: true } ) );
+        app.use(bodyParser.urlencoded({ extended: true }));
 
         //log the requests using morgan
         app.use( morgan( "combined" ) );
@@ -66,8 +67,9 @@ var Server = module.exports.Server =
                     prefix = "/" + prefix;
                 }
                 
-                this._addRoutes( this._getRoutes( controller, prefix ), "get" );
-                this._addRoutes( this._getRoutes( controller, prefix ), "post" );
+                const routes = this._getRoutes( controller, prefix );
+                this._addRoutes( routes, "get" );
+                this._addRoutes( routes, "post" );
                 
                 if ( file === this.defaultControllerName + "_controller.js" )
                 {

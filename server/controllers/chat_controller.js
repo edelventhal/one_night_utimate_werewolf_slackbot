@@ -9,7 +9,7 @@ var ChatController = module.exports =
 {
     command: function( request, response )
     {
-        console.log( "Incoming data: " + request.body );
+        console.log( "Incoming data: " + JSON.stringify( request.body ) );
         response.status( 200 ).json( {
 	"blocks": [
 		{
