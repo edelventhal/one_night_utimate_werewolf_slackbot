@@ -3,7 +3,6 @@
 /*global console*/
 
 const fs = require( "fs" );
-const coffee = require( "../models/coffee_model.js" );
 
 //the PageController is a special controller where its members are accessed without the prefix "/page".
 //instead, they are accessed directly using the name of the function. ex: website.com/index instead of website.com/page/index
@@ -19,10 +18,7 @@ const PageController = module.exports =
     //using typical pug syntax, you can send custom (server-driven) data to your page through here
     index: function( request, response )
     {
-        coffee.getMessage( function( message )
-        {
-            response.render( "index", { customData: { "message": message } } );
-        });
+        response.render( "index", { customData: { } } );
     }
 };
 
