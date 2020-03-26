@@ -10,9 +10,9 @@ const GAME_KEY_PREFIX = "game.";
 
 //creates a new game and calls cb when done, with the game and a boolean parameter on whether this is a new game.
 //automatically loads the game from the db if it's an existing game, otherwise creates a new one.
-var GameModel = module.exports = function( creatorId, cb )
+var GameModel = module.exports = function( channelId, cb )
 {
-    this.id = creatorId;
+    this.id = channelId;
     
     //all players in this game by id
     this.players = [];
@@ -58,7 +58,6 @@ var GameModel = module.exports = function( creatorId, cb )
             database.push( GAMES_LIST_KEY, this.id, function()
             {
                 this._initializeNewGame( true );
-                this.players.push( this.id ); //the creating player always joins
                 this.save( cb.bind( this, this, true ) );
             }.bind(this));
         }
