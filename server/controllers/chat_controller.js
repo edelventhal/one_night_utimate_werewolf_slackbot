@@ -9,6 +9,33 @@ var ChatController = module.exports =
 {
     command: function( request, response )
     {
-        response.status( 200 ).json( { success: true } );
+        console.log( "Incoming data: " + JSON.stringify( request.body ) );
+        response.status( 200 ).json( {
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "A message *with some bold text* and _some italicized text_."
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "You can add a button alongside text in your message. "
+			},
+			"accessory": {
+				"type": "button",
+				"text": {
+					"type": "plain_text",
+					"text": "Button",
+					"emoji": true
+				},
+				"value": "click_me_123"
+			}
+		}
+	]
+} );
     }
 };
