@@ -27,49 +27,50 @@ var SlackAPI = module.exports =
     
     respondToHook: function( body, query, cb )
     {
-        body = {
-  "payload": {
-    "type": "block_actions",
-    "team": {
-      "id": "T6L6E5Q5B",
-      "domain": "ubiquity6"
-    },
-    "user": {
-      "id": "UJ2R60QHL",
-      "username": "eli",
-      "name": "eli",
-      "team_id": "T6L6E5Q5B"
-    },
-    "api_app_id": "A010V2RUS4C",
-    "token": "PtDDt1NqjzYQ9w7lszFZG0Ko",
-    "container": {
-      "type": "message",
-      "message_ts": "1585260620.000600",
-      "channel_id": "G010XMKRRPH",
-      "is_ephemeral": true
-    },
-    "trigger_id": "1029768789077.224218194181.cd952da18587b3857a141cf92f04d19b",
-    "channel": {
-      "id": "G010XMKRRPH",
-      "name": "privategroup"
-    },
-    "response_url": "https://hooks.slack.com/actions/T6L6E5Q5B/1031851602791/kLNNakWPJUjBF86hz2xRDJJ8",
-    "actions": [
-      {
-        "action_id": "uSjg7",
-        "block_id": "4zW",
-        "text": {
-          "type": "plain_text",
-          "text": "Button",
-          "emoji": true
-        },
-        "value": "click_me_123",
-        "type": "button",
-        "action_ts": "1585262052.504038"
-      }
-    ]
-  }
-};
+        //for testing...
+//         body = {
+//   "payload": {
+//     "type": "block_actions",
+//     "team": {
+//       "id": "T6L6E5Q5B",
+//       "domain": "ubiquity6"
+//     },
+//     "user": {
+//       "id": "UJ2R60QHL",
+//       "username": "eli",
+//       "name": "eli",
+//       "team_id": "T6L6E5Q5B"
+//     },
+//     "api_app_id": "A010V2RUS4C",
+//     "token": "PtDDt1NqjzYQ9w7lszFZG0Ko",
+//     "container": {
+//       "type": "message",
+//       "message_ts": "1585260620.000600",
+//       "channel_id": "G010XMKRRPH",
+//       "is_ephemeral": true
+//     },
+//     "trigger_id": "1029768789077.224218194181.cd952da18587b3857a141cf92f04d19b",
+//     "channel": {
+//       "id": "G010XMKRRPH",
+//       "name": "privategroup"
+//     },
+//     "response_url": "https://hooks.slack.com/actions/T6L6E5Q5B/1031851602791/kLNNakWPJUjBF86hz2xRDJJ8",
+//     "actions": [
+//       {
+//         "action_id": "uSjg7",
+//         "block_id": "4zW",
+//         "text": {
+//           "type": "plain_text",
+//           "text": "Button",
+//           "emoji": true
+//         },
+//         "value": "click_me_123",
+//         "type": "button",
+//         "action_ts": "1585262052.504038"
+//       }
+//     ]
+//   }
+// };
 
         const channelId = body.payload && body.payload.container ? body.payload.container.channel_id : null;
         
