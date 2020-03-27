@@ -100,7 +100,7 @@ var SlackAPI = module.exports =
                         {
                             "type": "mrkdwn",
                             "text": "Welcome to *One Night Ultimate Werewolf* :wolf:!\n" +
-                                ( isFull ? "The game is currently full." : "To play a game, have between 3-10 players join with the `/werewolf` command." ) +
+                                ( isFull ? "The game is currently full." : "To play a game, have between 3-10 players join with the `/werewolf` command.\n" ) +
                                 "You can set which roles are allowed in the game, or enter nothing to use the default roles."
                                 //appended dynamically below
                         }
