@@ -7,6 +7,11 @@ var utility = require( "./utility.js" );
 //TODO
 var DiscordAPI = module.exports =
 {
+    respondToHook: function( body, query, cb )
+    {
+        cb();
+    },
+    
     getUsersList: function( cb )
     {
         cb( [] );

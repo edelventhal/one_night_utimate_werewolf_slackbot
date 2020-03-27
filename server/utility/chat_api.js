@@ -4,12 +4,20 @@
 
 var utility = require( "./utility.js" );
 var config = require ( "../config.js" );
-var slack = require( "./slackApi.js" );
-var discord = require( "./discordApi.js" );
+var slack = require( "./slack_api.js" );
+var discord = require( "./discord_api.js" );
 
 //abstracted chat API that can connect to Slack, Discord, etc
 var ChatAPI = module.exports =
 {
+    //called by the chat_controller when a webhook comes in
+    //hits the callback with error as first param, responseJson as the second
+    //the second param will be sent directly to the webhook response
+    respondToHook: function( body, query, cb )
+    {
+        this._getApi().respondToHook.apply( this, arguments );
+    },
+    
     post: function( message, channel, cb )
     {
         this._getApi().post.apply( this, arguments );
@@ -27,7 +35,7 @@ var ChatAPI = module.exports =
     
     _getApi: function()
     {
-        if ( process.env.CHAT_APP.toLowerCase() === config.ChatApp.Discord )
+        if ( process.env.CHAT_APP && process.env.CHAT_APP.toLowerCase() === config.ChatApp.Discord )
         {
             return discord;
         }

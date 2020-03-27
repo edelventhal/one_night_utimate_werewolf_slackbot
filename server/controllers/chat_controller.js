@@ -3,39 +3,23 @@
 
 var database = require( "../database.js" );
 var utility = require( "../utility/utility.js" );
+var chatApi = require( "../utility/chat_api.js" );
 
 //Connect this hook to your chat app - all incoming messages can be re-routed from here
 var ChatController = module.exports =
 {
     command: function( request, response )
     {
-        console.log( "Incoming data: " + JSON.stringify( request.body ) );
-        response.status( 200 ).json( {
-	"blocks": [
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "A message *with some bold text* and _some italicized text_."
-			}
-		},
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "You can add a button alongside text in your message. "
-			},
-			"accessory": {
-				"type": "button",
-				"text": {
-					"type": "plain_text",
-					"text": "Button",
-					"emoji": true
-				},
-				"value": "click_me_123"
-			}
-		}
-	]
-} );
+        chatApi.respondToHook( request.body, request.query, function( error, responseJson )
+        {
+            if ( error )
+            {
+                response.status( 500 ).json( { error: error } );
+            }
+            else
+            {
+                response.status( 200 ).json( responseJson );
+            }
+        });
     }
 };

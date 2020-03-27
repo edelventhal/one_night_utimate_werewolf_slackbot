@@ -3,7 +3,6 @@
 
 var database = require( "../database.js" );
 var utility = require( "../utility/utility.js" );
-var slack = require( "../utility/slackApi.js" );
 var config = require( "../config.js" );
 var GameModel = require("../models/game_model.js");
 

@@ -171,6 +171,46 @@ GameModel.prototype.removePlayer = function( userId, cb )
     }
 };
 
+GameModel.prototype.hasPlayer = function( userId )
+{
+    return this.players.indexOf( userId ) >= 0;
+};
+
+GameModel.prototype.getUsedRoles = function()
+{
+    const usedRoles = [];
+    Object.keys( this.roles ).forEach( function( role )
+    {
+        usedRoles.add( role );
+    });
+    this.availableRoles.forEach( function( role )
+    {
+        usedRoles.add( role );
+    });
+    return usedRoles;
+};
+
+GameModel.prototype.isUserTurn = function( userId )
+{
+    if ( this.phase !== config.GamePhase.Night )
+    {
+        return false;
+    }
+    
+    const role = this.roles[userId];
+    if ( !role )
+    {
+        return false;
+    }
+    
+    if ( config.ActiveNightRoles.indexOf( role ) < 0 )
+    {
+        return false;
+    }
+    
+    return ( this.nightPhase === role );
+};
+
 GameModel.prototype._addDefaultRoles = function( playerCount )
 {
     this.availableRoles =
