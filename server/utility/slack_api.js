@@ -101,14 +101,14 @@ var SlackAPI = module.exports =
                         this._preparePayload( game, payload );
                         cb( null, payload );
                     }
-                });
+                }.bind(this));
             }
             else
             {
                 this._preparePayload( game, payload );
                 cb( null, payload );
             }
-        });
+        }.bind(this));
     },
     
     //TODO - should move all of this into a view of some kind
