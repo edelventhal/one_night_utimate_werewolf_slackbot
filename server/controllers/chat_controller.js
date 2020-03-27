@@ -14,6 +14,7 @@ var ChatController = module.exports =
         {
             if ( error )
             {
+                console.log( "Chatbot error: " + error );
                 response.status( 500 ).json( { error: error } );
             }
             else

@@ -72,6 +72,8 @@ var SlackAPI = module.exports =
 //   }
 // };
 
+        console.log( "Body coming in: " + JSON.stringify(body));
+
         const channelId = body.payload && body.payload.container ? body.payload.container.channel_id : null;
         
         if ( !channelId )
