@@ -72,6 +72,7 @@ var SlackAPI = module.exports =
 //   }
 // }
 
+        console.log( "Body type " + body + " " + typeof(body));
         console.log( "Body coming in: " + JSON.stringify(body));
         
         const channelId = body.payload && body.payload.container ? body.payload.container.channel_id : body.channel_id;
