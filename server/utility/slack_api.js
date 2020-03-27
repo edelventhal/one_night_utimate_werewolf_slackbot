@@ -73,8 +73,8 @@ var SlackAPI = module.exports =
 // };
 
         console.log( "Body coming in: " + JSON.stringify(body));
-
-        const channelId = body.payload && body.payload.container ? body.payload.container.channel_id : null;
+        
+        const channelId = body.payload && body.payload.container ? body.payload.container.channel_id : body.channel_id;
         
         if ( !channelId )
         {
@@ -82,7 +82,7 @@ var SlackAPI = module.exports =
             return;
         }
         
-        const userId = body.payload && body.payload.user ? body.payload.user.id : null;
+        const userId = body.payload && body.payload.user ? body.payload.user.id : body.user_id;
         const payload = {};
         
         gameUtility.get( channelId, function( game )

@@ -14,8 +14,8 @@ var ChatController = module.exports =
         {
             if ( error )
             {
-                console.log( "Chatbot error: " + error );
-                response.status( 200 ).json( "Werewolf bot error! \"" + error + "\"" );
+                console.log( "Returning error: " + error );
+                response.status( 200 ).json( error );
             }
             else
             {
