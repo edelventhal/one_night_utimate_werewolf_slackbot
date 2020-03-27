@@ -77,6 +77,8 @@ var SlackAPI = module.exports =
         
         const incomingPayload = body.payload ? JSON.parse( body.payload ) : null;
         
+        console.log( "payload is " + JSON.stringify( incomingPayload ) );
+        
         const channelId = incomingPayload && incomingPayload.container ? incomingPayload.container.channel_id : body.channel_id;
         
         if ( !channelId )
