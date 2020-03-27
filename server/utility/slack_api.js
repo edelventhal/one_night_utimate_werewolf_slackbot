@@ -75,7 +75,9 @@ var SlackAPI = module.exports =
         console.log( "Body type " + body + " " + typeof(body));
         console.log( "Body coming in: " + JSON.stringify(body));
         
-        const channelId = body.payload && body.payload.container ? body.payload.container.channel_id : body.channel_id;
+        const incomingPayload = body.payload ? JSON.parse( body.payload ) : null;
+        
+        const channelId = incomingPayload && incomingPayload.container ? incomingPayload.container.channel_id : body.channel_id;
         
         if ( !channelId )
         {
@@ -83,7 +85,7 @@ var SlackAPI = module.exports =
             return;
         }
         
-        const userId = body.payload && body.payload.user ? body.payload.user.id : body.user_id;
+        const userId = incomingPayload && incomingPayload.user ? incomingPayload.user.id : body.user_id;
         
         const payload = {};
                 
