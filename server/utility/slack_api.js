@@ -28,7 +28,7 @@ var SlackAPI = module.exports =
     respondToHook: function( body, query, cb )
     {
         //for testing...
-//         body = {
+// body = {
 //   "payload": {
 //     "type": "block_actions",
 //     "team": {
@@ -45,32 +45,32 @@ var SlackAPI = module.exports =
 //     "token": "PtDDt1NqjzYQ9w7lszFZG0Ko",
 //     "container": {
 //       "type": "message",
-//       "message_ts": "1585260620.000600",
+//       "message_ts": "1585272292.001200",
 //       "channel_id": "G010XMKRRPH",
 //       "is_ephemeral": true
 //     },
-//     "trigger_id": "1029768789077.224218194181.cd952da18587b3857a141cf92f04d19b",
+//     "trigger_id": "1030051872693.224218194181.30f570b6214b3ea525883cbe8c25b565",
 //     "channel": {
 //       "id": "G010XMKRRPH",
 //       "name": "privategroup"
 //     },
-//     "response_url": "https://hooks.slack.com/actions/T6L6E5Q5B/1031851602791/kLNNakWPJUjBF86hz2xRDJJ8",
+//     "response_url": "https://hooks.slack.com/actions/T6L6E5Q5B/1017331180578/ujDPUcuT18Bceq45finyo2pa",
 //     "actions": [
 //       {
-//         "action_id": "uSjg7",
-//         "block_id": "4zW",
+//         "action_id": "nQN",
+//         "block_id": "Z/H",
 //         "text": {
 //           "type": "plain_text",
-//           "text": "Button",
+//           "text": "Join Game",
 //           "emoji": true
 //         },
-//         "value": "click_me_123",
+//         "value": "joinUJ2R60QHL",
 //         "type": "button",
-//         "action_ts": "1585262052.504038"
+//         "action_ts": "1585272468.923882"
 //       }
 //     ]
 //   }
-// };
+// }
 
         console.log( "Body coming in: " + JSON.stringify(body));
         
@@ -85,12 +85,12 @@ var SlackAPI = module.exports =
         const userId = body.payload && body.payload.user ? body.payload.user.id : body.user_id;
         
         const payload = {};
-        
-        gameUtility.get( channelId, ( game ) =>
+                
+        gameUtility.get( channelId, function( game )
         {
             if ( body.payload && body.payload.actions )
             {
-                this._respondToActions( game, body.payload.actions, ( error ) =>
+                this._respondToActions( game, body.payload.actions, function( error )
                 {
                     if ( error )
                     {
@@ -98,34 +98,34 @@ var SlackAPI = module.exports =
                     }
                     else
                     {
-                        this._preparePayload( game, payload );
+                        this._preparePayload( game, userId, payload );
                         cb( null, payload );
                     }
-                });
+                }.bind(this));
             }
             else
             {
-                this._preparePayload( game, payload );
+                this._preparePayload( game, userId, payload );
                 cb( null, payload );
             }
-        });
+        }.bind(this));
     },
     
     //TODO - should move all of this into a view of some kind
-    _preparePayload: function( game, payload )
+    _preparePayload: function( game, userId, payload )
     {
         //show buttons related to starting a new game, adding players, etc
         if ( game.phase === config.GamePhase.WaitingForPlayers )
         {
-            this._preparePayloadWaitingForPlayers( game, payload );
+            this._preparePayloadWaitingForPlayers( game, userId, payload );
         }
         else if ( game.phase === config.GamePhase.Night )
         {
-            this._preparePayloadNight( game, payload );
+            this._preparePayloadNight( game, userId, payload );
         }
     },
     
-    _preparePayloadWaitingForPlayers: function( game, payload )
+    _preparePayloadWaitingForPlayers: function( game, userId, payload )
     {
         const isFull = game.players.length >= config.maximumPlayerCount;
         
@@ -247,7 +247,7 @@ var SlackAPI = module.exports =
         }
     },
     
-    _preparePayloadNight: function( game, payload )
+    _preparePayloadNight: function( game, userId, payload )
     {
         if ( !game.hasPlayer( userId ) )
         {
@@ -401,7 +401,7 @@ var SlackAPI = module.exports =
         let actionProcessedCount = 0;
         let errorText = "";
         
-        const actionCompleteFunc = ( error ) =>
+        const actionCompleteFunc = function( error )
         {
             if ( error )
             {
@@ -415,10 +415,10 @@ var SlackAPI = module.exports =
             }
         };
         
-        actions.forEach( ( action ) =>
+        actions.forEach( function( action )
         {
             this._respondToAction( game, action.value, actionCompleteFunc );
-        });
+        }.bind(this));
     },
     
     _respondToAction: function( game, actionId, cb )

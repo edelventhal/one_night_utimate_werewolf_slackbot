@@ -15,22 +15,22 @@ var ChatAPI = module.exports =
     //the second param will be sent directly to the webhook response
     respondToHook: function( body, query, cb )
     {
-        this._getApi().respondToHook.apply( this, arguments );
+        this._getApi().respondToHook.apply( this._getApi(), arguments );
     },
     
     post: function( message, channel, cb )
     {
-        this._getApi().post.apply( this, arguments );
+        this._getApi().post.apply( this._getApi(), arguments );
     },
     
     postPrivately: function( message, channel, user, cb )
     {
-        this._getApi().postPrivately.apply( this, arguments );
+        this._getApi().postPrivately.apply( this._getApi(), arguments );
     },
     
     getUsersList: function( cb )
     {
-        this._getApi().getUsersList.apply( this, arguments );
+        this._getApi().getUsersList.apply( this._getApi(), arguments );
     },
     
     _getApi: function()
