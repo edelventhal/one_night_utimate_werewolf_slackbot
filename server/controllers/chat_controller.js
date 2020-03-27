@@ -10,7 +10,7 @@ var ChatController = module.exports =
 {
     command: function( request, response )
     {
-        chatApi.respondToHook( request.body, request.query, function( error, responseJson )
+        chatApi.respondToHook( request.body, request.query, ( error, responseJson ) =>
         {
             if ( error )
             {

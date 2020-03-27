@@ -86,11 +86,11 @@ var SlackAPI = module.exports =
         
         const payload = {};
         
-        gameUtility.get( channelId, function( game )
+        gameUtility.get( channelId, ( game ) =>
         {
             if ( body.payload && body.payload.actions )
             {
-                this._respondToActions( game, body.payload.actions, function( error )
+                this._respondToActions( game, body.payload.actions, ( error ) =>
                 {
                     if ( error )
                     {
@@ -101,14 +101,14 @@ var SlackAPI = module.exports =
                         this._preparePayload( game, payload );
                         cb( null, payload );
                     }
-                }.bind(this));
+                });
             }
             else
             {
                 this._preparePayload( game, payload );
                 cb( null, payload );
             }
-        }.bind(this));
+        });
     },
     
     //TODO - should move all of this into a view of some kind
@@ -401,7 +401,7 @@ var SlackAPI = module.exports =
         let actionProcessedCount = 0;
         let errorText = "";
         
-        const actionCompleteFunc = function( error )
+        const actionCompleteFunc = ( error ) =>
         {
             if ( error )
             {
@@ -415,10 +415,10 @@ var SlackAPI = module.exports =
             }
         };
         
-        actions.forEach( function( action )
+        actions.forEach( ( action ) =>
         {
             this._respondToAction( game, action.value, actionCompleteFunc );
-        }.bind(this));
+        });
     },
     
     _respondToAction: function( game, actionId, cb )
