@@ -83,246 +83,280 @@ var SlackAPI = module.exports =
         }
         
         const userId = body.payload && body.payload.user ? body.payload.user.id : body.user_id;
+        
         const payload = {};
         
         gameUtility.get( channelId, function( game )
         {
-            //show buttons related to starting a new game, adding players, etc
-            if ( game.phase === config.GamePhase.WaitingForPlayers )
+            if ( body.payload && body.payload.actions )
             {
-                const isFull = game.players.length >= config.maximumPlayerCount;
-                
-                payload.blocks =
-                [
+                this._respondToActions( game, body.payload.actions, function( error )
+                {
+                    if ( error )
                     {
-                        "type": "section",
-                        "text":
-                        {
-                            "type": "mrkdwn",
-                            "text": "Welcome to *One Night Ultimate Werewolf* :wolf:!\n" +
-                                ( isFull ? "The game is currently full." : "To play a game, have between 3-10 players join with the `/werewolf` command.\n" ) +
-                                "You can set which roles are allowed in the game, or enter nothing to use the default roles."
-                                //appended dynamically below
-                        }
-                    },
-                    {
-                        "type": "actions",
-                        "elements":
-                        [
-                            //added dynamically below
-                        ]
+                        cb( error );
                     }
+                    else
+                    {
+                        this._preparePayload( game, payload );
+                        cb( null, payload );
+                    }
+                });
+            }
+            else
+            {
+                this._preparePayload( game, payload );
+                cb( null, payload );
+            }
+        });
+    },
+    
+    //TODO - should move all of this into a view of some kind
+    _preparePayload: function( game, payload )
+    {
+        //show buttons related to starting a new game, adding players, etc
+        if ( game.phase === config.GamePhase.WaitingForPlayers )
+        {
+            this._preparePayloadWaitingForPlayers( game, payload );
+        }
+        else if ( game.phase === config.GamePhase.Night )
+        {
+            this._preparePayloadNight( game, payload );
+        }
+    },
+    
+    _preparePayloadWaitingForPlayers: function( game, payload )
+    {
+        const isFull = game.players.length >= config.maximumPlayerCount;
+        
+        payload.blocks =
+        [
+            {
+                "type": "section",
+                "text":
+                {
+                    "type": "mrkdwn",
+                    "text": "Welcome to *One Night Ultimate Werewolf* :wolf:!\n" +
+                        ( isFull ? "The game is currently full." : "To play a game, have between 3-10 players join with the `/werewolf` command.\n" ) +
+                        "You can set which roles are allowed in the game, or enter nothing to use the default roles."
+                        //appended dynamically below
+                }
+            },
+            {
+                "type": "actions",
+                "elements":
+                [
+                    //added dynamically below
                 ]
-                
-                const messageBlock = payload.blocks[0];
-                
-                //players
-                messageBlock.text.text += "\nPlayers: ";
-                if ( game.players.length <= 0 )
+            }
+        ]
+        
+        const messageBlock = payload.blocks[0];
+        
+        //players
+        messageBlock.text.text += "\nPlayers: ";
+        if ( game.players.length <= 0 )
+        {
+            messageBlock.text.text += "None";
+        }
+        else
+        {
+            game.players.forEach( function( playerId )
+            {
+                messageBlock.text.text += `<@${playerId}> `;
+            });
+        }
+        
+        //roles
+        messageBlock.text.text += "\nRoles: ";
+        if ( game.availableRoles.length <= 0 )
+        {
+            messageBlock.text.text += "Default";
+        }
+        else
+        {
+            game.availableRoles.forEach( function( role )
+            {
+                messageBlock.text.text += `${role.charAt(0).toUpperCase() + role.substring(1)} `;
+            });
+        }
+        
+        //actions
+        const actionsBlock = payload.blocks[1];
+        
+        const hasUser = game.hasPlayer( userId );
+        if ( hasUser || !isFull )
+        {
+            actionsBlock.elements.push(
+            {
+                "type": "button",
+                "text":
                 {
-                    messageBlock.text.text += "None";
+                    "type": "plain_text",
+                    "text": game.hasPlayer( userId ) ? "Leave Game" : "Join Game",
+                    "emoji": true
+                },
+                "value": game.hasPlayer( userId ) ? ( "drop" + userId ) : ( "join" + userId )
+            });
+        }
+        
+        const roleSelectAction =
+        {
+            "type": "static_select",
+            "placeholder":
+            {
+                "type": "plain_text",
+                "text": "Add a role",
+                "emoji": true
+            },
+            "options":
+            [
+                //dynamically added
+            ]
+        };
+        
+        game.unusedRoles.forEach( function( role )
+        {
+            roleSelectAction.options.push(
+            {
+                "text":
+                {
+                    "type": "plain_text",
+                    "text": `${role.charAt(0).toUpperCase() + role.substring(1)}`,
+                    "emoji": true
+                },
+                "value": "addRole" + role
+            });
+        });
+        
+        actionsBlock.elements.push( roleSelectAction );
+        
+        if ( game.players.length >= config.minimumPlayerCount )
+        {
+            actionsBlock.elements.push(
+            {
+                "type": "button",
+                "text":
+                {
+                    "type": "plain_text",
+                    "text": "Start Game",
+                    "emoji": true
+                },
+                "value": "start"
+            });
+        }
+    },
+    
+    _preparePayloadNight: function( game, payload )
+    {
+        if ( !game.hasPlayer( userId ) )
+        {
+            
+        }
+        const role = game.roles[userId];
+        const isUserTurn = game.isUserTurn( userId );
+        
+        payload.blocks =
+        [
+            {
+                "type": "section",
+                "text":
+                {
+                    "type": "mrkdwn",
+                    "text": "It's *NIGHT*. :full_moon:\n" +
+                        "Play the One Night Ultimate Werewolf app with the default game and all roles you chose, then follow its instructions.\n" +
+                        "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}.\n` +
+                        ( isUserTurn ? "Your turn! Perform your action." : "*CLOSE YOUR EYES* Open only when told, then use the `/werewolf` command again." )
                 }
-                else
-                {
-                    game.players.forEach( function( playerId )
-                    {
-                        messageBlock.text.text += `<@${playerId}> `;
-                    });
-                }
+            }
+        ]
+        
+        if ( isUserTurn )
+        {
+            const actionsBlock =
+            {
+                "type": "actions",
+                "elements":
+                [
+                    //added dynamically below
+                ]
+            };
+            
+            payload.blocks.push( actionsBlock );
+            
+            if ( role === "doppelganger" )
+            {
+                actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Copy a player", "doppelgangerCopy" ) );
                 
-                //roles
-                messageBlock.text.text += "\nRoles: ";
-                if ( game.availableRoles.length <= 0 )
+                //TODO - we need to show all the shit below if the doppelganger swaps to one of these other ones :'-(
+            }
+            else if ( role === "werewolf" )
+            {
+                actionsBlock.elements.push(
                 {
-                    messageBlock.text.text += "Default";
-                }
-                else
-                {
-                    game.availableRoles.forEach( function( role )
-                    {
-                        messageBlock.text.text += `${role.charAt(0).toUpperCase() + role.substring(1)} `;
-                    });
-                }
-                
-                //actions
-                const actionsBlock = payload.blocks[1];
-                
-                const hasUser = game.hasPlayer( userId );
-                if ( hasUser || !isFull )
-                {
-                    actionsBlock.elements.push(
-                    {
-                        "type": "button",
-                        "text":
-                        {
-                            "type": "plain_text",
-                            "text": game.hasPlayer( userId ) ? "Leave Game" : "Join Game",
-                            "emoji": true
-                        },
-                        "value": game.hasPlayer( userId ) ? ( "drop" + userId ) : ( "join" + userId )
-                    });
-                }
-                
-                const roleSelectAction =
-                {
-                    "type": "static_select",
-                    "placeholder":
+                    "type": "button",
+                    "text":
                     {
                         "type": "plain_text",
-                        "text": "Add a role",
+                        "text": "Reveal a middle card",
                         "emoji": true
                     },
-                    "options":
-                    [
-                        //dynamically added
-                    ]
-                };
-                
-                game.unusedRoles.forEach( function( role )
+                    "value": "werewolfRevealMiddle"
+                });
+            }
+            else if ( role === "seer" )
+            {
+                actionsBlock.elements.push(
                 {
-                    roleSelectAction.options.push(
+                    "type": "button",
+                    "text":
                     {
-                        "text":
-                        {
-                            "type": "plain_text",
-                            "text": `${role.charAt(0).toUpperCase() + role.substring(1)}`,
-                            "emoji": true
-                        },
-                        "value": "addRole" + role
-                    });
+                        "type": "plain_text",
+                        "text": "Reveal 2 middle cards",
+                        "emoji": true
+                    },
+                    "value": "seerRevealMiddle"
                 });
                 
-                actionsBlock.elements.push( roleSelectAction );
-                
-                if ( game.players.length >= config.minimumPlayerCount )
-                {
-                    actionsBlock.elements.push(
-                    {
-                        "type": "button",
-                        "text":
-                        {
-                            "type": "plain_text",
-                            "text": "Start Game",
-                            "emoji": true
-                        },
-                        "value": "start"
-                    });
-                }
+                actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Reveal a player's card", "seerRevealTarget" ) );
             }
-            else if ( game.phase === config.GamePhase.Night )
+            else if ( role === "robber" )
             {
-                if ( !game.hasPlayer( userId ) )
-                {
-                    
-                }
-                const role = game.roles[userId];
-                const isUserTurn = game.isUserTurn( userId );
-                
-                payload.blocks =
-                [
-                    {
-                        "type": "section",
-                        "text":
-                        {
-                            "type": "mrkdwn",
-                            "text": "It's *NIGHT*. :full_moon:\n" +
-                                "Play the One Night Ultimate Werewolf app with the default game and all roles you chose, then follow its instructions.\n" +
-                                "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}.\n` +
-                                ( isUserTurn ? "Your turn! Perform your action." : "*CLOSE YOUR EYES* Open only when told, then use the `/werewolf` command again." )
-                        }
-                    }
-                ]
-                
-                if ( isUserTurn )
-                {
-                    const actionsBlock =
-                    {
-                        "type": "actions",
-                        "elements":
-                        [
-                            //added dynamically below
-                        ]
-                    };
-                    
-                    payload.blocks.push( actionsBlock );
-                    
-                    if ( role === "doppelganger" )
-                    {
-                        actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Copy a player", "doppelgangerCopy" ) );
-                        
-                        //TODO - we need to show all the shit below if the doppelganger swaps to one of these other ones :'-(
-                    }
-                    else if ( role === "werewolf" )
-                    {
-                        actionsBlock.elements.push(
-                        {
-                            "type": "button",
-                            "text":
-                            {
-                                "type": "plain_text",
-                                "text": "Reveal a middle card",
-                                "emoji": true
-                            },
-                            "value": "werewolfRevealMiddle"
-                        });
-                    }
-                    else if ( role === "seer" )
-                    {
-                        actionsBlock.elements.push(
-                        {
-                            "type": "button",
-                            "text":
-                            {
-                                "type": "plain_text",
-                                "text": "Reveal 2 middle cards",
-                                "emoji": true
-                            },
-                            "value": "seerRevealMiddle"
-                        });
-                        
-                        actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Reveal a player's card", "seerRevealTarget" ) );
-                    }
-                    else if ( role === "robber" )
-                    {
-                        actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Steal from a player", "robberSteal" ) );
-                    }
-                    else if ( role === "troublemaker" )
-                    {
-                        actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Swap two players", "troublemakerSwap", true ) );
-                    }
-                    else if ( role === "drunk" )
-                    {
-                        actionsBlock.elements.push(
-                        {
-                            "type": "button",
-                            "text":
-                            {
-                                "type": "plain_text",
-                                "text": "Get a random middle card",
-                                "emoji": true
-                            },
-                            "value": "drunkSwap"
-                        });
-                    }
-                    else if ( role === "insomniac" )
-                    {
-                        actionsBlock.elements.push(
-                        {
-                            "type": "button",
-                            "text":
-                            {
-                                "type": "plain_text",
-                                "text": "Inspect your card",
-                                "emoji": true
-                            },
-                            "value": "insomniacInspect"
-                        });
-                    }
-                }
+                actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Steal from a player", "robberSteal" ) );
             }
-            
-            cb( null, payload );
-        });
+            else if ( role === "troublemaker" )
+            {
+                actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Swap two players", "troublemakerSwap", true ) );
+            }
+            else if ( role === "drunk" )
+            {
+                actionsBlock.elements.push(
+                {
+                    "type": "button",
+                    "text":
+                    {
+                        "type": "plain_text",
+                        "text": "Get a random middle card",
+                        "emoji": true
+                    },
+                    "value": "drunkSwap"
+                });
+            }
+            else if ( role === "insomniac" )
+            {
+                actionsBlock.elements.push(
+                {
+                    "type": "button",
+                    "text":
+                    {
+                        "type": "plain_text",
+                        "text": "Inspect your card",
+                        "emoji": true
+                    },
+                    "value": "insomniacInspect"
+                });
+            }
+        }
     },
     
     _getPlayersSelectAction: function( game, userId, text, selectValuePrefix, multiSelect )
@@ -360,5 +394,68 @@ var SlackAPI = module.exports =
         });
         
         return selectAction;
+    },
+    
+    _respondToActions: function( game, actions, cb )
+    {
+        let actionProcessedCount = 0;
+        let errorText = "";
+        
+        const actionCompleteFunc = function( error )
+        {
+            if ( error )
+            {
+                errorText += error + " ";
+            }
+            
+            actionProcessedCount++;
+            if ( actionProcessedCount >= actions.length )
+            {
+                cb( errorText );
+            }
+        };
+        
+        actions.forEach( function( action )
+        {
+            this._respondToAction( game, action.value, actionCompleteFunc );
+        }.bind(this));
+    },
+    
+    _respondToAction: function( game, actionId, cb )
+    {
+        if ( !actionId )
+        {
+            cb( "No action ID provided." );
+            return;
+        }
+        
+        if ( actionId.indexOf( "join" ) === 0 )
+        {
+            const userId = actionId.substring( "join".length );
+            game.addPlayer( userId, cb );
+        }
+        else if ( actionId.indexOf( "drop" ) === 0 )
+        {
+            const userId = actionId.substring( "drop".length );
+            game.removePlayer( userId, cb );
+        }
+        else if ( actionId.indexOf( "addRole" ) === 0 )
+        {
+            const role = actionId.substring( "addRole".length );
+            game.addRole( role, cb );
+        }
+        else if ( actionId.indexOf( "removeRole" ) === 0 )
+        {
+            const role = actionId.substring( "removeRole".length );
+            game.removeRole( role, cb );
+        }
+        else if ( actionId.indexOf( "start" ) === 0 )
+        {
+            game.startGame( cb );
+        }
+        else
+        {
+            cb( "Invalid action." );
+        }
     }
 }
