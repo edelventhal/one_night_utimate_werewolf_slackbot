@@ -88,14 +88,15 @@ var SlackAPI = module.exports =
         }
         
         const userId = incomingPayload && incomingPayload.user ? incomingPayload.user.id : body.user_id;
+        const actions = incomingPayload ? incomingPayload.actions : null;
         
         const payload = {};
                 
         gameUtility.get( channelId, function( game )
         {
-            if ( body.payload && body.payload.actions )
+            if ( actions )
             {
-                this._respondToActions( game, body.payload.actions, function( error )
+                this._respondToActions( game, actions, function( error )
                 {
                     if ( error )
                     {
