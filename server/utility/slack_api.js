@@ -436,6 +436,8 @@ var SlackAPI = module.exports =
     
     _respondToAction: function( game, actionId, cb )
     {
+        console.log( "Got action " + actionId );
+        
         if ( !actionId )
         {
             cb( "No action ID provided." );
@@ -445,6 +447,7 @@ var SlackAPI = module.exports =
         if ( actionId.indexOf( "join" ) === 0 )
         {
             const userId = actionId.substring( "join".length );
+            console.log( "Joining game! " + userId );
             game.addPlayer( userId, cb );
         }
         else if ( actionId.indexOf( "drop" ) === 0 )
@@ -455,11 +458,13 @@ var SlackAPI = module.exports =
         else if ( actionId.indexOf( "addRole" ) === 0 )
         {
             const role = actionId.substring( "addRole".length );
+            console.log( "Adding role! " + role );
             game.addRole( role, cb );
         }
         else if ( actionId.indexOf( "removeRole" ) === 0 )
         {
             const role = actionId.substring( "removeRole".length );
+            console.log( "Dropping role!" + role );
             game.removeRole( role, cb );
         }
         else if ( actionId.indexOf( "start" ) === 0 )
