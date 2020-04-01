@@ -405,6 +405,7 @@ var SlackAPI = module.exports =
     _respondToActions: function( game, actions, cb )
     {
         let actionProcessedCount = 0;
+        let validActionCount = 0;
         let errorText = "";
         
         const actionCompleteFunc = function( error )
@@ -415,7 +416,7 @@ var SlackAPI = module.exports =
             }
             
             actionProcessedCount++;
-            if ( actionProcessedCount >= actions.length )
+            if ( actionProcessedCount >= validActionCount )
             {
                 cb( errorText );
             }
@@ -423,7 +424,13 @@ var SlackAPI = module.exports =
         
         actions.forEach( function( action )
         {
-            this._respondToAction( game, action.value, actionCompleteFunc );
+            const actionIds = this._findActionIds( action );
+            validActionCount += actionIds.length;
+            
+            actionIds.forEach( function( actionId )
+            {
+                this._respondToAction( game, actionId, actionCompleteFunc );
+            }.bind(this));
         }.bind(this));
     },
     
@@ -463,5 +470,28 @@ var SlackAPI = module.exports =
         {
             cb( "Invalid action." );
         }
+    },
+    
+    _findActionIds: function( action )
+    {
+        const actionIds = [];
+        
+        if ( action.value )
+        {
+            actionIds.push( action.value );
+        }
+        else if ( action.selected_option )
+        {
+            actionIds.push( action.selected_option.value );
+        }
+        else if ( action.selected_options )
+        {
+            action.selected_options.forEach( function( optionData )
+            {
+                actionIds.push( optionData.value );
+            });
+        }
+        
+        return actionIds;
     }
 }
