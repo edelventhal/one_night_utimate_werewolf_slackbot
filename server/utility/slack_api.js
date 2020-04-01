@@ -460,6 +460,7 @@ var SlackAPI = module.exports =
             const role = actionId.substring( "addRole".length );
             console.log( "Adding role! " + role );
             game.addRole( role, cb );
+            console.log( "Roles are " + JSON.stringify( game.availableRoles ) + " for ID " + game.id );
         }
         else if ( actionId.indexOf( "removeRole" ) === 0 )
         {

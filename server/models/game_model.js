@@ -43,7 +43,7 @@ var GameModel = module.exports = function( channelId, cb )
     this.nightPhase = 0;
 
     //if this game already exists, load it, otherwise just return a new game
-    database.exists( this.getDatabaseKey(), function( exists )
+    database.exists( this.getDatabaseKey(), function( error, exists )
     {
         if ( exists )
         {
