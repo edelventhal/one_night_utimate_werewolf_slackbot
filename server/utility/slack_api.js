@@ -232,36 +232,75 @@ var SlackAPI = module.exports =
             });
         }
         
-        const roleSelectAction =
+        //unused roles (add new ones)
+        if ( game.unusedRoles.length > 0 )
         {
-            "type": "static_select",
-            "placeholder":
+            const roleSelectAction =
             {
-                "type": "plain_text",
-                "text": "Add a role",
-                "emoji": true
-            },
-            "options":
-            [
-                //dynamically added
-            ]
-        };
-        
-        game.unusedRoles.forEach( function( role )
-        {
-            roleSelectAction.options.push(
-            {
-                "text":
+                "type": "static_select",
+                "placeholder":
                 {
                     "type": "plain_text",
-                    "text": `${role.charAt(0).toUpperCase() + role.substring(1)}`,
+                    "text": "Add a role",
                     "emoji": true
                 },
-                "value": "addRole" + role
-            });
-        });
+                "options":
+                [
+                    //dynamically added
+                ]
+            };
         
-        actionsBlock.elements.push( roleSelectAction );
+            game.unusedRoles.forEach( function( role )
+            {
+                roleSelectAction.options.push(
+                {
+                    "text":
+                    {
+                        "type": "plain_text",
+                        "text": `${role.charAt(0).toUpperCase() + role.substring(1)}`,
+                        "emoji": true
+                    },
+                    "value": "addRole" + role
+                });
+            });
+        
+            actionsBlock.elements.push( roleSelectAction );
+        }
+        
+        //used roles (remove existing ones)
+        if ( game.availableRoles.length > 0 )
+        {
+            const roleRemoveAction =
+            {
+                "type": "static_select",
+                "placeholder":
+                {
+                    "type": "plain_text",
+                    "text": "Remove a role",
+                    "emoji": true
+                },
+                "options":
+                [
+                    //dynamically added
+                ]
+            };
+        
+            game.availableRoles.forEach( function( role )
+            {
+                roleRemoveAction.options.push(
+                {
+                    "text":
+                    {
+                        "type": "plain_text",
+                        "text": `${role.charAt(0).toUpperCase() + role.substring(1)}`,
+                        "emoji": true
+                    },
+                    "value": "addRole" + role
+                });
+            });
+        
+            actionsBlock.elements.push( roleRemoveAction );
+        }
         
         if ( game.players.length >= config.minimumPlayerCount )
         {
