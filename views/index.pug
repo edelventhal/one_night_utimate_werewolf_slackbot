@@ -10,12 +10,14 @@ body
     p Game
         input(id="gameIdText" type="text" value="G010XMKRRPH" )
     p Add player
-        select(id='addPlayerSelect' onChange="index.addPlayer('gameIdText', 'addPlayerSelect')")
+        select(id='addPlayerSelect' onChange="index.addPlayer('gameIdText', 'addPlayerSelect', 'outputDiv')")
             - for ( let userIndex = 0; userIndex < customData.users.length; userIndex++ ) {
                 option(value=customData.users[userIndex]) #{customData.users[userIndex]}
             - }
     p Remove player
-        select(id='removePlayerSelect' onChange="index.removePlayer('gameIdText', 'removePlayerSelect')")
+        select(id='removePlayerSelect' onChange="index.removePlayer('gameIdText', 'removePlayerSelect', 'outputDiv')")
             - for ( let userIndex = 0; userIndex < customData.users.length; userIndex++ ) {
                 option(value=customData.users[userIndex]) #{customData.users[userIndex]}
             - }
+    button(id="gateDataButton" onClick="index.printGameData('gameIdText', 'outputDiv')") Get game data
+    div(id="outputDiv")

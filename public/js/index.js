@@ -1,16 +1,34 @@
 var index =
 {
-    addPlayer: function( gameTextId, userSelectId )
+    addPlayer: function( gameTextId, userSelectId, outputDivId  )
     {
         const gameId = document.getElementById( gameTextId ).value;
         const userSelect = document.getElementById( userSelectId );
-        server.addPlayer( gameId, userSelect.options[userSelect.selectedIndex].value, function(){} );
+        const outputDiv = document.getElementById( outputDivId );
+        server.addPlayer( gameId, userSelect.options[userSelect.selectedIndex].value, function()
+        {
+            outputDivId.innerHTML = "Done.";
+        });
     },
     
-    removePlayer: function( gameTextId, userSelectId )
+    removePlayer: function( gameTextId, userSelectId, outputDivId  )
     {
         const gameId = document.getElementById( gameTextId ).value;
         const userSelect = document.getElementById( userSelectId );
-        server.removePlayer( gameId, userSelect.options[userSelect.selectedIndex].value, function(){} );
+        const outputDiv = document.getElementById( outputDivId );
+        server.removePlayer( gameId, userSelect.options[userSelect.selectedIndex].value, function()
+        {
+            outputDivId.innerHTML = "Done.";
+        });
+    },
+    
+    printGameData: function( gameTextId, outputDivId )
+    {
+        const gameId = document.getElementById( gameTextId ).value;
+        const outputDiv = document.getElementById( outputDivId );
+        server.getGameData( gameId, function( data )
+        {
+            outputDiv.innerHTML = JSON.stringify(data);
+        });
     }
 };

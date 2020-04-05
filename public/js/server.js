@@ -66,5 +66,10 @@ var server =
     removePlayer: function( gameId, playerId, cb )
     {
         this._sendRequest( "game/drop", cb, { gameId: gameId, droppingPlayerId: playerId } );
+    },
+    
+    getGameData: function( gameId, cb )
+    {
+        this._sendRequest( "game/getData", cb, { gameId: gameId } );
     }
 };

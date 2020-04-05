@@ -242,4 +242,19 @@ var GameController = module.exports =
             });
         }
     },
+    
+    getData: function( request, response )
+    {
+        if ( !request.query.gameId )
+        {
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
+        }
+        else
+        {
+            new GameModel( request.query.gameId, function( game )
+            {
+                response.status(200).json( game );
+            });
+        }
+    }
 };
