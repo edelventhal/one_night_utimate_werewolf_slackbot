@@ -111,17 +111,20 @@ var SlackAPI = module.exports =
                         //edit the original message with an updated message
                         if ( responseUrl )
                         {
-                            request.post( responseUrl, payload, function( responseError, res, body )
-                            {
-                                if ( responseError )
-                                {
-                                    cb( responseError );
-                                }
-                                else
-                                {
-                                    cb( null, payload );
-                                }
-                            });
+                            console.log( "Sending response to URL: " + responseUrl + " with payload " + JSON.stringify( payload ) );
+                            utility.httpsPostJson( responseUrl, payload, process.env.SLACK_AUTH, cb );
+                            
+                            // request.post( responseUrl, payload, function( responseError, res, body )
+                            // {
+                            //     if ( responseError )
+                            //     {
+                            //         cb( responseError );
+                            //     }
+                            //     else
+                            //     {
+                            //         cb( null, payload );
+                            //     }
+                            // });
                         }
                         else
                         {
