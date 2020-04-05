@@ -111,6 +111,8 @@ var SlackAPI = module.exports =
                         //edit the original message with an updated message
                         if ( responseUrl )
                         {
+                            //if we send this then Slack will replace the original message with this updated one
+                            payload.replace_original = "true";
                             console.log( "Sending response to URL: " + responseUrl + " with payload " + JSON.stringify( payload ) );
                             utility.httpsPostJson( responseUrl, payload, process.env.SLACK_AUTH, cb );
                             
@@ -153,9 +155,6 @@ var SlackAPI = module.exports =
         {
             this._preparePayloadNight( game, userId, payload );
         }
-        
-        //if we send this then Slack will replace the original message with this updated one
-        payload.replace_original = "true";
     },
     
     _preparePayloadWaitingForPlayers: function( game, userId, payload )
