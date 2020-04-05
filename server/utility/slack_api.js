@@ -295,7 +295,7 @@ var SlackAPI = module.exports =
                         "text": `${role.charAt(0).toUpperCase() + role.substring(1)}`,
                         "emoji": true
                     },
-                    "value": "addRole" + role
+                    "value": "removeRole" + role
                 });
             });
         
