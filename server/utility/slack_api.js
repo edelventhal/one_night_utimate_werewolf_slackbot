@@ -129,6 +129,9 @@ var SlackAPI = module.exports =
         {
             this._preparePayloadNight( game, userId, payload );
         }
+        
+        //if we send this then Slack will replace the original message with this updated one
+        payload.replace_original = "true";
     },
     
     _preparePayloadWaitingForPlayers: function( game, userId, payload )
@@ -447,7 +450,6 @@ var SlackAPI = module.exports =
         if ( actionId.indexOf( "join" ) === 0 )
         {
             const userId = actionId.substring( "join".length );
-            console.log( "Joining game! " + userId );
             game.addPlayer( userId, cb );
         }
         else if ( actionId.indexOf( "drop" ) === 0 )
@@ -458,14 +460,11 @@ var SlackAPI = module.exports =
         else if ( actionId.indexOf( "addRole" ) === 0 )
         {
             const role = actionId.substring( "addRole".length );
-            console.log( "Adding role! " + role );
             game.addRole( role, cb );
-            console.log( "Roles are " + JSON.stringify( game.availableRoles ) + " for ID " + game.id );
         }
         else if ( actionId.indexOf( "removeRole" ) === 0 )
         {
             const role = actionId.substring( "removeRole".length );
-            console.log( "Dropping role!" + role );
             game.removeRole( role, cb );
         }
         else if ( actionId.indexOf( "start" ) === 0 )

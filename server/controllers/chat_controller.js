@@ -19,6 +19,7 @@ var ChatController = module.exports =
             }
             else
             {
+                console.log( "Responding with " + JSON.stringify(responseJson));
                 response.status( 200 ).json( responseJson );
             }
         }.bind(this));
