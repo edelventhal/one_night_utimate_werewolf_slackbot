@@ -92,7 +92,7 @@ var SlackAPI = module.exports =
         const userId = incomingPayload && incomingPayload.user ? incomingPayload.user.id : body.user_id;
         const actions = incomingPayload ? incomingPayload.actions : null;
         
-        const payload = {replace_original: "true"};
+        const payload = {replace_original: true};
                 
         gameUtility.get( channelId, function( game )
         {
@@ -112,7 +112,7 @@ var SlackAPI = module.exports =
                         if ( responseUrl )
                         {
                             //if we send this then Slack will replace the original message with this updated one
-                            payload.replace_original = "true";
+                            payload.replace_original = true;
                             payload.fuck = "comeoneman";
                             payload["wut"] = "yo";
                             console.log( "Sending response to URL: " + responseUrl + " with payload " + JSON.stringify( payload ) );
