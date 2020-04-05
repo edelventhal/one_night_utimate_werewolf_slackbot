@@ -81,7 +81,7 @@ var SlackAPI = module.exports =
         console.log( "payload is " + JSON.stringify( incomingPayload ) );
         
         const channelId = incomingPayload && incomingPayload.container ? incomingPayload.container.channel_id : body.channel_id;
-        const responseUrl = incomingPayload ? incomingPayload.responseUrl : body.responseUrl;
+        const responseUrl = incomingPayload ? incomingPayload.response_url : body.response_url;
         
         if ( !channelId )
         {
@@ -92,7 +92,7 @@ var SlackAPI = module.exports =
         const userId = incomingPayload && incomingPayload.user ? incomingPayload.user.id : body.user_id;
         const actions = incomingPayload ? incomingPayload.actions : null;
         
-        const payload = {replace_original: true};
+        const payload = {};
                 
         gameUtility.get( channelId, function( game )
         {
@@ -113,8 +113,6 @@ var SlackAPI = module.exports =
                         {
                             //if we send this then Slack will replace the original message with this updated one
                             payload.replace_original = true;
-                            payload.fuck = "comeoneman";
-                            payload["wut"] = "yo";
                             console.log( "Sending response to URL: " + responseUrl + " with payload " + JSON.stringify( payload ) );
                             utility.httpsPostJson( responseUrl, payload, process.env.SLACK_AUTH, cb );
                             
