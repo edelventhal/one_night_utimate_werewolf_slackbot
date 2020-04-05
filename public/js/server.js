@@ -57,18 +57,14 @@ var server =
         cb();
     },
     
-    updateMessage: function( newMessage, cb )
+    addPlayer: function( gameId, playerId, cb )
     {
-        this._sendRequest( "coffee/updateMessage", cb, { message: newMessage } );
+        console.log( "Adding player " + playerId + " to game " + gameId );
+        this._sendRequest( "game/join", cb, { gameId: gameId, joiningPlayerId: playerId } );
     },
     
-    scheduleCoffee: function( channel, dryRun, cb )
+    removePlayer: function( gameId, playerId, cb )
     {
-        this._sendRequest( "coffee/scheduleCoffee", cb, { channel: channel, dryRun: dryRun } );
-    },
-    
-    clearPairs: function( cb )
-    {
-        this._sendRequest( "coffee/clearPairs", cb );
+        this._sendRequest( "game/drop", cb, { gameId: gameId, droppingPlayerId: playerId } );
     }
 };

@@ -10,14 +10,14 @@ var GameController = module.exports =
 {
     create: function( request, response )
     {
-        if ( !request.query.creatorId )
+        if ( !request.query.gameId )
         {
-            response.status(500).json( { success: false, error: "creatorId is a required parameter." } );
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
         }
         else
         {
             //TODO - this is weak - the GameModel should do all this with a factory function or something
-            new GameModel( request.query.creatorId, function( game, wasNewGame )
+            new GameModel( request.query.gameId, function( game, wasNewGame )
             {
                 //if this is a brand new game, carry on, we're ready to go
                 if ( wasNewGame )
@@ -54,13 +54,13 @@ var GameController = module.exports =
     
     delete: function( request, response )
     {
-        if ( !request.query.creatorId )
+        if ( !request.query.gameId )
         {
-            response.status(500).json( { success: false, error: "creatorId is a required parameter." } );
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
         }
         else
         {
-            new GameModel( request.query.creatorId, function( game )
+            new GameModel( request.query.gameId, function( game )
             {
                 game.remove( function( removeError )
                 {
@@ -83,13 +83,13 @@ var GameController = module.exports =
         {
             response.status(500).json( { success: false, error: "joiningPlayerId is a required parameter." } );
         }
-        else if ( !request.query.creatorId )
+        else if ( !request.query.gameId )
         {
-            response.status(500).json( { success: false, error: "creatorId is a required parameter." } );
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
         }
         else
         {
-            new GameModel( request.query.creatorId, function( game )
+            new GameModel( request.query.gameId, function( game )
             {
                 game.addPlayer( request.query.joiningPlayerId, function( error )
                 {
@@ -112,13 +112,13 @@ var GameController = module.exports =
         {
             response.status(500).json( { success: false, error: "droppingPlayerId is a required parameter." } );
         }
-        else if ( !request.query.creatorId )
+        else if ( !request.query.gameId )
         {
-            response.status(500).json( { success: false, error: "creatorId is a required parameter." } );
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
         }
         else
         {
-            new GameModel( request.query.creatorId, function( game )
+            new GameModel( request.query.gameId, function( game )
             {
                 game.removePlayer( request.query.droppingPlayerId, function( error )
                 {
@@ -137,13 +137,13 @@ var GameController = module.exports =
     
     start: function( request, response )
     {
-        if ( !request.query.creatorId )
+        if ( !request.query.gameId )
         {
-            response.status(500).json( { success: false, error: "creatorId is a required parameter." } );
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
         }
         else
         {
-            new GameModel( request.query.creatorId, function( game )
+            new GameModel( request.query.gameId, function( game )
             {
                 game.startGame( function( error )
                 {
@@ -162,13 +162,13 @@ var GameController = module.exports =
     
     restart: function( request, response )
     {
-        if ( !request.query.creatorId )
+        if ( !request.query.gameId )
         {
-            response.status(500).json( { success: false, error: "creatorId is a required parameter." } );
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
         }
         else
         {
-            new GameModel( request.query.creatorId, function( game )
+            new GameModel( request.query.gameId, function( game )
             {
                 game.restart( function( error )
                 {
@@ -191,13 +191,13 @@ var GameController = module.exports =
         {
             response.status(500).json( { success: false, error: "role is a required parameter." } );
         }
-        else if ( !request.query.creatorId )
+        else if ( !request.query.gameId )
         {
-            response.status(500).json( { success: false, error: "creatorId is a required parameter." } );
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
         }
         else
         {
-            new GameModel( request.query.creatorId, function( game )
+            new GameModel( request.query.gameId, function( game )
             {
                 game.addRole( request.query.role, function( error )
                 {
@@ -220,13 +220,13 @@ var GameController = module.exports =
         {
             response.status(500).json( { success: false, error: "role is a required parameter." } );
         }
-        else if ( !request.query.creatorId )
+        else if ( !request.query.gameId )
         {
-            response.status(500).json( { success: false, error: "creatorId is a required parameter." } );
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
         }
         else
         {
-            new GameModel( request.query.creatorId, function( game )
+            new GameModel( request.query.gameId, function( game )
             {
                 game.removeRole( request.query.role, function( error )
                 {

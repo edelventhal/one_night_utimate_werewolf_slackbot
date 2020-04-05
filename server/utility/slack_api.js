@@ -11,6 +11,7 @@ var SlackAPI = module.exports =
 {
     getUsersList: function( cb )
     {
+        console.log( "gimme users" );
         utility.httpsPostJson( "https://slack.com/api/users.list", {}, process.env.SLACK_AUTH, cb );
     },
     

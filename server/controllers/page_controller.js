@@ -18,7 +18,22 @@ const PageController = module.exports =
     //using typical pug syntax, you can send custom (server-driven) data to your page through here
     index: function( request, response )
     {
-        response.render( "index", { customData: { } } );
+        //manually pulled from our slack
+        const users =
+        [
+            "UQQ0ME19V",
+            "UJPUFLRSB",
+            "UF5BFFS7P",
+            "UU0C8AXC2",
+            "UHZN5FAGK",
+            "U71V12B6C",
+            "UNN2G5T37",
+            "U6M8F9MJA",
+            "U6L6E5Q6R",
+            "UGG8414F6"
+        ];
+        
+        response.render( "index", { customData: { users } } );
     }
 };
 

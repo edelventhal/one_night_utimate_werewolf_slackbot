@@ -1,25 +1,21 @@
 html
     head
-        title Ubiquity6 Coffee Bot!
+        title Werewolf Bot
         script(src="js/cookies.js")
         script(src="js/server.js")
         script(src="js/index.js")
         link(rel="stylesheet" href="css/styles.css")
 body
-    p This is the coffee bot admin panel! You can control it manually from here.
-    p Current Message:
-    textarea(id='messageText' rows=4 cols=100 oninput='index.messageChanged("messageText", "messageButton", "whatever")') #{customData.message}
-    br
-    button(id='messageButton' type='button' onClick='index.updateMessage("messageText")' disabled=true) Save Edited Message
-    br
-    button(type='button' onClick='index.scheduleCoffee("channelSelect", "dryRunCheckbox")') Schedule Coffee Now
-    | &nbsp; to channel:
-    select(id='channelSelect')
-        option(value='C6KCQ664Q') #general
-        option(value='CK8C04U5U') #diversitytaskforce
-    | &nbsp; Dry run
-    input(id='dryRunCheckbox' type='checkbox')
-    br
-    button(type='button' onClick='index.clearPairs()') Clear Stored Pairs
-    br
-    div(id='result')
+    p Werewolf bot admin panel
+    p Game
+        input(id="gameIdText" type="text" value="G010XMKRRPH" )
+    p Add player
+        select(id='addPlayerSelect' onChange="index.addPlayer('gameIdText', 'addPlayerSelect')")
+            - for ( let userIndex = 0; userIndex < customData.users.length; userIndex++ ) {
+                option(value=customData.users[userIndex]) #{customData.users[userIndex]}
+            - }
+    p Remove player
+        select(id='removePlayerSelect' onChange="index.removePlayer('gameIdText', 'removePlayerSelect')")
+            - for ( let userIndex = 0; userIndex < customData.users.length; userIndex++ ) {
+                option(value=customData.users[userIndex]) #{customData.users[userIndex]}
+            - }
