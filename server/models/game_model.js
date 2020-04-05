@@ -203,7 +203,7 @@ GameModel.prototype.isUserTurn = function( userId )
         return false;
     }
     
-    if ( config.ActiveNightRoles.indexOf( role ) < 0 )
+    if ( !config.ActiveNightRoles[role] )
     {
         return false;
     }
