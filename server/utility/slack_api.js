@@ -2,6 +2,7 @@
 /*global console*/
 /*global require*/
 
+const request = require( "request" );
 var utility = require( "./utility.js" );
 var config = require( "../config.js" );
 var gameUtility = require( "./game_utility.js" );
@@ -80,6 +81,7 @@ var SlackAPI = module.exports =
         console.log( "payload is " + JSON.stringify( incomingPayload ) );
         
         const channelId = incomingPayload && incomingPayload.container ? incomingPayload.container.channel_id : body.channel_id;
+        const responseUrl = incomingPayload ? incomingPayload.responseUrl : body.responseUrl;
         
         if ( !channelId )
         {
@@ -105,7 +107,26 @@ var SlackAPI = module.exports =
                     else
                     {
                         this._preparePayload( game, userId, payload );
-                        cb( null, payload );
+                        
+                        //edit the original message with an updated message
+                        if ( responseUrl )
+                        {
+                            request.post( responseUrl, payload, function( responseError, res, body )
+                            {
+                                if ( responseError )
+                                {
+                                    cb( responseError );
+                                }
+                                else
+                                {
+                                    cb( null, payload );
+                                }
+                            });
+                        }
+                        else
+                        {
+                            cb( null, payload );
+                        }
                     }
                 }.bind(this));
             }

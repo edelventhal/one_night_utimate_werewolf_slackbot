@@ -113,12 +113,15 @@ const JOIN_GAME_PAYLOAD =
 //write the game ID into the channel ID for the payload
 SLASH_COMMAND_BODY.channel_id = GAME_ID;
 SLASH_COMMAND_BODY.user_id = PLAYER_ID;
+SLASH_COMMAND_BODY.response_url = null;
 
 ADD_TROUBLEMAKER_PAYLOAD.container.channel_id = GAME_ID;
 ADD_TROUBLEMAKER_PAYLOAD.user.id = PLAYER_ID;
+ADD_TROUBLEMAKER_PAYLOAD.response_url = null;
 JOIN_GAME_PAYLOAD.container.channel_id = GAME_ID;
 JOIN_GAME_PAYLOAD.user.id = PLAYER_ID;
 JOIN_GAME_PAYLOAD.actions[0].value = "join" + PLAYER_ID;
+JOIN_GAME_PAYLOAD.response_url = null;
 
 //Slack sends these as stringified payloads for whatever reason
 const ADD_TROUBLEMAKER_BODY = { payload: JSON.stringify( ADD_TROUBLEMAKER_PAYLOAD ) };
