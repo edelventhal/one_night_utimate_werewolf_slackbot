@@ -71,5 +71,10 @@ var server =
     getGameData: function( gameId, cb )
     {
         this._sendRequest( "game/getData", cb, { gameId: gameId } );
+    },
+    
+    restartGame: function( gameId, cb )
+    {
+        this._sendRequest( "game/restart", cb, { gameId: gameId } );
     }
 };

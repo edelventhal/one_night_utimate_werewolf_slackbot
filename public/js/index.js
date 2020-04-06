@@ -30,5 +30,15 @@ var index =
         {
             outputDiv.innerHTML = JSON.stringify(data);
         });
-    }
+    },
+    
+    restartGame: function( gameTextId, outputDivId )
+    {
+        const gameId = document.getElementById( gameTextId ).value;
+        const outputDiv = document.getElementById( outputDivId );
+        server.restartGame( gameId, function()
+        {
+            outputDiv.innerHTML = "Done.";
+        });
+    },
 };
