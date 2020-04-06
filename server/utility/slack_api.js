@@ -99,7 +99,7 @@ var SlackAPI = module.exports =
         {
             if ( actions )
             {
-                this._respondToActions( game, actions, function( error )
+                this._respondToActions( game, actions, userId, function( error )
                 {
                     if ( error )
                     {
@@ -468,7 +468,7 @@ var SlackAPI = module.exports =
         return selectAction;
     },
     
-    _respondToActions: function( game, actions, cb )
+    _respondToActions: function( game, actions, userId, cb )
     {
         let actionProcessedCount = 0;
         let validActionCount = 0;
@@ -492,18 +492,19 @@ var SlackAPI = module.exports =
         {
             const actionIds = this._findActionIds( action );
             validActionCount += actionIds.length;
+            this._respondToAction( game, actionIds, userId, actionCompleteFunc );
             
-            actionIds.forEach( function( actionId )
-            {
-                this._respondToAction( game, actionId, actionCompleteFunc );
-            }.bind(this));
+            // actionIds.forEach( function( actionId )
+            // {
+            //     this._respondToAction( game, actionId, userId, actionCompleteFunc );
+            // }.bind(this));
         }.bind(this));
     },
     
-    _respondToAction: function( game, actionId, cb )
+    _respondToAction: function( game, actionIds, userId, cb )
     {
-        console.log( "Got action " + actionId );
-        
+        const actionId = actionIds.length > 0 ? actionIds[0] : null;
+                
         if ( !actionId )
         {
             cb( "No action ID provided." );
@@ -533,6 +534,50 @@ var SlackAPI = module.exports =
         else if ( actionId.indexOf( "start" ) === 0 )
         {
             game.startGame( cb );
+        }
+        else if ( actionId.indexOf( "doppelgangerCopy" ) === 0 )
+        {
+            const targetId = actionId.substring( "doppelgangerCopy".length );
+            game.doppelgangerCopy( userId, targetId, cb );
+        }
+        else if ( actionId.indexOf( "werewolfRevealMiddle" ) === 0 )
+        {
+            game.werewolfReveal( userId, cb );
+        }
+        else if ( actionId.indexOf( "seerRevealMiddle" ) === 0 )
+        {
+            game.seerReveal( userId, null, cb );
+        }
+        else if ( actionId.indexOf( "seerRevealTarget" ) === 0 )
+        {
+            const targetId = actionId.substring( "seerRevealTarget".length );
+            game.seerReveal( userId, targetId, cb );
+        }
+        else if ( actionId.indexOf( "robberSteal" ) === 0 )
+        {
+            const targetId = actionId.substring( "robberSteal".length );
+            game.robberSteal( userId, targetId, cb );
+        }
+        else if ( actionId.indexOf( "troublemakerSwap" ) === 0 )
+        {
+            if ( actionIds.length < 2 )
+            {
+                cb( "Must provide two targets." );
+                return;
+            }
+            
+            const targetId0 = actionIds[0].substring( "troublemakerSwap".length );
+            const targetId1 = actionIds[1].substring( "troublemakerSwap".length );
+            game.troublemakerSwap( userId, targetId0, targetId1, cb );
+        }
+        else if ( actionId.indexOf( "drunkSwap" ) === 0 )
+        {
+            const targetId = actionId.substring( "drunkSwap".length );
+            game.drunkSwap( userId, targetId, cb );
+        }
+        else if ( actionId.indexOf( "insomniacInspect" ) === 0 )
+        {
+            game.insomniacInspect( userId, cb );
         }
         else
         {

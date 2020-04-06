@@ -61,6 +61,7 @@ var Config = module.exports =
     ActiveNightRoles:
     {
         "doppelganger": true,
+        "werewolf": true,
         "seer": true,
         "robber": true,
         "troublemaker": true,

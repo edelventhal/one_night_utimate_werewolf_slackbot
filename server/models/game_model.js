@@ -426,6 +426,39 @@ GameModel.prototype.doppelgangerCopy = function( doppelPlayerId, targetPlayerId,
     });
 };
 
+//calls cb with a viewed card as param 2
+//can only be called if there is exactly one werewolf
+GameModel.prototype.werewolfReveal = function( werewolfPlayerId, cb )
+{
+    if ( !( this.initialRoles[ werewolfPlayerId ] === "werewolf" ||
+          ( this.initialRoles[ werewolfPlayerId ] === "doppelganger" && this.roleData.doppelganger === "werewolf" ) ) )
+    {
+        cb( "You're not a werewolf!" );
+        return;
+    }
+    
+    if ( this.phase !== config.GamePhase.Night )
+    {
+        cb( "That can only be done at night!" );
+        return;
+    }
+    
+    if ( this.nightPhase !== config.NightPhase.werewolf )
+    {
+        cb( "It's not the werewolf's turn yet!" );
+        return;
+    }
+    
+    if ( this._getWerewolfCount() > 1 )
+    {
+        cb( "A werewolf can only view a center card if they are alone!" );
+        return;
+    }
+    
+    this._goToNextNightPhase();
+    cb( null, this._getRandomAvaialableRoles(1) );
+};
+
 //calls cb with an array of viewed cards as param 2.
 //if null is passed for the targetPlayerId, 2 of the center cards are revealed instead
 GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, cb )
@@ -469,23 +502,8 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
     }
     else
     {
-        const possibleRoles = [];
-        this.availableRoles.forEach( ( role ) =>
-        {
-            possibleRoles.push( role );
-        });
-        
-        const resultsArr = [];
-        const revealCount = 2;
-        for ( let revealIndex = 0; revealIndex < revealCount; revealIndex++ )
-        {
-            const possibleRoleIndex = Math.floor( Math.random() * possibleRoles.length );
-            resultsArr.push( possibleRoles[ possibleRoleIndex ] );
-            possibleRoles.splice( possibleRoleIndex, 1 );
-        }
-        
         this._goToNextNightPhase();
-        cb( null, resultsArr );
+        cb( null, this._getRandomAvaialableRoles( 2 ) );
     }
 };
 
@@ -695,6 +713,14 @@ GameModel.prototype._goToNextNightPhase = function()
             roleExists = false;
         }
         
+        let isActiveRole = config.ActiveNightRoles[ role ];
+        
+        //edge case - only via the "lone wolf" rule can a werewolf do an activity
+        if ( role === "werewolf" && this._getWerewolfCount() !== 1 )
+        {
+            isActiveRole = false;
+        }
+        
         if ( roleExists && config.ActiveNightRoles[ role ] )
         {
             break;
@@ -709,3 +735,35 @@ GameModel.prototype._goToNextNightPhase = function()
     
     return false;
 };
+
+GameModel.prototype._getRandomAvaialableRoles = function( selectCount )
+{
+    const possibleRoles = [];
+    this.availableRoles.forEach( ( role ) =>
+    {
+        possibleRoles.push( role );
+    });
+    
+    const resultsArr = [];
+    for ( let selectIndex = 0; selectIndex < selectCount; selectIndex++ )
+    {
+        const possibleRoleIndex = Math.floor( Math.random() * possibleRoles.length );
+        resultsArr.push( possibleRoles[ possibleRoleIndex ] );
+        possibleRoles.splice( possibleRoleIndex, 1 );
+    }
+    
+    return resultsArr;
+}
+
+GameModel.prototype._getWerewolfCount = function()
+{
+    let werewolfCount = this.roleData.doppelganger === "werewolf" ? 1 : 0;
+    Object.values( this.roles ).forEach( function( role )
+    {
+        if ( role === "werewolf" )
+        {
+            werewolfCount++;
+        }
+    });
+    return werewolfCount;
+}
