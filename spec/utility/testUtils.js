@@ -93,7 +93,7 @@ var TestUtils = module.exports =
         "werewolf"
     ],
     
-    createTestGame: function( cb )
+    createTestGame: function( cb, omittedForcedRoles )
     {
         const targetPlayerCount = TestUtils.forcedRoles.length;
         const targetRoleCount = targetPlayerCount + 3; //3 is a game design choice
@@ -113,12 +113,17 @@ var TestUtils = module.exports =
                             game.players.forEach( ( playerId, index ) =>
                             {
                                 //note that this may cause duplicates of some roles
-                                if ( index < TestUtils.forcedRoles.length )
+                                if ( index < TestUtils.forcedRoles.length &&
+                                    (!omittedForcedRoles || omittedForcedRoles.indexOf( TestUtils.forcedRoles[index] ) < 0 ) )
                                 {
                                     game.roles[ playerId ] = TestUtils.forcedRoles[ index ];
                                     game.initialRoles[ playerId ] = TestUtils.forcedRoles[ index ];
                                 }
                             });
+                            
+                            //force the game to go back to the proper night phase with these new roles
+                            game.nightPhase = -1;
+                            game._goToNextNightPhase();
                             
                             game.availableRoles = JSON.parse( JSON.stringify( TestUtils.forcedExtraRoles ) );
                             

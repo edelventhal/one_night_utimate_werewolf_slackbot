@@ -33,6 +33,7 @@ describe( "Doppelganger", function()
     {
         utils.doDoppelgangerCopy( game, "seer", function( doppelgangerPlayerId, error, newRole )
         {
+            expect(error).toBeFalsy();
             expect(game.roleData.doppelganger).toEqual("seer");
             const villagerPlayerId = utils.findPlayerWithRole( game,"villager");
 
@@ -50,6 +51,7 @@ describe( "Doppelganger", function()
     {
         utils.doDoppelgangerCopy( game, "seer", function( doppelgangerPlayerId, error, newRole )
         {
+            expect(error).toBeFalsy();
             expect(game.roleData.doppelganger).toEqual("seer");
 
             game.seerReveal( doppelgangerPlayerId, null, function( error, revealedRoles )
@@ -69,6 +71,7 @@ describe( "Doppelganger", function()
     {
         utils.doDoppelgangerCopy( game, "robber", function( doppelgangerPlayerId, error, newRole )
         {
+            expect(error).toBeFalsy();
             expect(game.roleData.doppelganger).toEqual("robber");
             const villagerPlayerId = utils.findPlayerWithRole( game,"villager");
 
@@ -89,6 +92,7 @@ describe( "Doppelganger", function()
     {
         utils.doDoppelgangerCopy( game, "troublemaker", function( doppelgangerPlayerId, error, newRole )
         {
+            expect(error).toBeFalsy();
             expect(game.roleData.doppelganger).toEqual("troublemaker");
             const targetPlayerId0 = utils.findPlayerWithRole( game,"seer");
             const targetPlayerId1 = utils.findPlayerWithRole( game,"werewolf");
@@ -109,6 +113,7 @@ describe( "Doppelganger", function()
     {
         utils.doDoppelgangerCopy( game, "drunk", function( doppelgangerPlayerId, error, newRole )
         {
+            expect(error).toBeFalsy();
             expect(game.roleData.doppelganger).toEqual("drunk");
             const availableRolesBefore = JSON.parse( JSON.stringify( game.availableRoles ) );
 
@@ -128,6 +133,7 @@ describe( "Doppelganger", function()
     {
         utils.doDoppelgangerCopy( game, "insomniac", function( doppelgangerPlayerId, error, newRole )
         {
+            expect(error).toBeFalsy();
             expect(game.roleData.doppelganger).toEqual("insomniac");
             
             //let the regular insomniac go - need to wait for the doppelganger's turn
@@ -153,6 +159,7 @@ describe( "Doppelganger", function()
         //then try to go again in order to cause this error
         utils.doDoppelgangerCopy( game, "villager", function( doppelgangerPlayerId, error, newRole )
         {
+            expect(error).toBeFalsy();
             game.doppelgangerCopy( doppelgangerPlayerId, villagerPlayerId, function( error )
             {
                 expect(error).toEqual("It's not the doppelganger's turn yet!");

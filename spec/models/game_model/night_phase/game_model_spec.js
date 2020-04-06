@@ -16,4 +16,13 @@ describe( "GameModel (Night)", function()
             });
         });
     });
+
+    it( "should start at the seer if there is no doppelganger", function( cb )
+    {
+        utils.createTestGame( function( game )
+        {
+            expect(game.nightPhase).toEqual(config.NightPhase.seer);
+            cb();
+        }, ["doppelganger"] );
+    });
 });

@@ -295,6 +295,16 @@ GameModel.prototype.removeRole = function( role, cb )
     }
 }
 
+GameModel.prototype.hasRole = function( role )
+{
+    if ( this.phase === config.GamePhase.WaitingForPlayers )
+    {
+        return this.availableRoles.indexOf( role ) >= 0;
+    }
+    
+    return Object.values( this.roles ).indexOf( role ) >= 0;
+};
+
 GameModel.prototype._getCountForRole = function( role )
 {
     role = role.toLowerCase();
@@ -334,9 +344,26 @@ GameModel.prototype.startGame = function( cb )
         }
     
         this._assignRoles();
+        
         //TODO - need to Slack private message all the players their roles
-        //NEXT - do the above with an abstracted API so Discord could work too, start testing for real
         this.phase++;
+        
+        //advance the night phase to whatever role is first
+        this.nightPhase = -1;
+        this._goToNextNightPhase();
+        // for ( ; this.nightPhase < config.NightPhaseList.length; this.nightPhase++ )
+        // {
+        //     const role = config.NightPhaseList[this.nightPhase];
+        //     if ( this.hasRole( role ) && config.ActiveNightRoles[role] )
+        //     {
+        //         console.log( "We have " + role + " and it's an active night role so we're stopping at " + this.nightPhase );
+        //         break;
+        //     }
+        //     else
+        //     {
+        //         console.log( "We don't have a " + role + " or it's not an active night phase so we're skipping it, now we're at " + this.nightPhase );
+        //     }
+        // }
     
         this.save( cb );
     }
