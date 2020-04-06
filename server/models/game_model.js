@@ -208,7 +208,7 @@ GameModel.prototype.isUserTurn = function( userId )
         return false;
     }
     
-    return ( this.nightPhase === role );
+    return ( this.nightPhase === config.NightPhase[role] );
 };
 
 GameModel.prototype._addDefaultRoles = function( playerCount )
