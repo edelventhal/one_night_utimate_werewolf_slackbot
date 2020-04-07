@@ -4,6 +4,7 @@
 var database = require( "../database.js" );
 var utility = require( "../utility/utility.js" );
 var gameUtility = require( "../utility/game_utility.js" );
+var chatApi = require( "../utility/chat_api.js" );
 var config = require( "../config.js" );
 var GameModel = require("../models/game_model.js");
 
@@ -40,6 +41,7 @@ var GameController = module.exports =
                             else
                             {
                                 response.status(200).json( { success: true } );
+                                chatApi.broadcastUpdates( request.query.gameId );
                             }
                         });
                     }
@@ -101,6 +103,7 @@ var GameController = module.exports =
                     else
                     {
                         response.status(200).json( { success: true } );
+                        chatApi.broadcastUpdates( request.query.gameId );
                     }
                 });
             });
@@ -130,6 +133,7 @@ var GameController = module.exports =
                     else
                     {
                         response.status(200).json( { success: true } );
+                        chatApi.broadcastUpdates( request.query.gameId );
                     }
                 });
             });
@@ -155,6 +159,7 @@ var GameController = module.exports =
                     else
                     {
                         response.status(200).json( { success: true } );
+                        chatApi.broadcastUpdates( request.query.gameId );
                     }
                 });
             });
@@ -180,6 +185,7 @@ var GameController = module.exports =
                     else
                     {
                         response.status(200).json( { success: true } );
+                        chatApi.broadcastUpdates( request.query.gameId );
                     }
                 });
             });
@@ -209,6 +215,7 @@ var GameController = module.exports =
                     else
                     {
                         response.status(200).json( { success: true } );
+                        chatApi.broadcastUpdates( request.query.gameId );
                     }
                 });
             });
@@ -238,6 +245,7 @@ var GameController = module.exports =
                     else
                     {
                         response.status(200).json( { success: true } );
+                        chatApi.broadcastUpdates( request.query.gameId );
                     }
                 });
             });
@@ -279,6 +287,7 @@ var GameController = module.exports =
                     else
                     {
                         response.status(200).json( { success: true } );
+                        chatApi.broadcastUpdates( request.query.gameId );
                     }
                 });
             });
