@@ -92,34 +92,46 @@ var SlackAPI = module.exports =
                 
         gameUtility.get( channelId, function( game )
         {
-            if ( actions )
+            const moveOn = function()
             {
-                this._respondToActions( game, actions, userId, responseUrl, function( error )
+                if ( actions )
                 {
-                    if ( error )
+                    this._respondToActions( game, actions, userId, responseUrl, function( error )
                     {
-                        cb( error );
-                    }
-                    else
-                    {
-                        this._preparePayload( game, userId, payload );
-                        
-                        //edit the original message with an updated message
-                        if ( responseUrl )
+                        if ( error )
                         {
-                            this._callResponseUrl( responseUrl, payload, cb );
+                            cb( error );
                         }
                         else
                         {
-                            cb( null, payload );
+                            this._preparePayload( game, userId, payload );
+                        
+                            //edit the original message with an updated message
+                            if ( responseUrl )
+                            {
+                                this._callResponseUrl( responseUrl, payload, cb );
+                            }
+                            else
+                            {
+                                cb( null, payload );
+                            }
                         }
-                    }
-                }.bind(this));
+                    }.bind(this));
+                }
+                else
+                {
+                    this._preparePayload( game, userId, payload );
+                    cb( null, payload );
+                }
+            }.bind(this);
+            
+            if ( responseUrl )
+            {
+                game.setResponseUrl( userId, responseUrl, moveOn );
             }
             else
             {
-                this._preparePayload( game, userId, payload );
-                cb( null, payload );
+                moveOn();
             }
         }.bind(this) );
     },

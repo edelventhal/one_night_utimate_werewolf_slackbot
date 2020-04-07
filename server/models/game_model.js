@@ -191,6 +191,18 @@ GameModel.prototype.hasPlayer = function( userId )
     return this.players.indexOf( userId ) >= 0;
 };
 
+GameModel.prototype.setResponseUrl = function( userId, resposeUrl, cb )
+{
+    if ( this.players.indexOf( userId ) < 0 )
+    {
+        cb( "That player is not in the game." );
+        return;
+    }
+    
+    this.responseUrls[userId] = responseUrl;
+    this.save( cb );
+};
+
 GameModel.prototype.getUsedRoles = function()
 {
     const usedRoles = [];
