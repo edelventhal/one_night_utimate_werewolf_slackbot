@@ -3,6 +3,7 @@
 
 var database = require( "../database.js" );
 var utility = require( "../utility/utility.js" );
+var gameUtility = require( "../utility/game_utility.js" );
 var config = require( "../config.js" );
 var GameModel = require("../models/game_model.js");
 
@@ -17,7 +18,7 @@ var GameController = module.exports =
         else
         {
             //TODO - this is weak - the GameModel should do all this with a factory function or something
-            new GameModel( request.query.gameId, function( game, wasNewGame )
+            gameUtility.get( request.query.gameId, function( game, wasNewGame )
             {
                 //if this is a brand new game, carry on, we're ready to go
                 if ( wasNewGame )
@@ -60,7 +61,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 game.remove( function( removeError )
                 {
@@ -89,7 +90,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 game.addPlayer( request.query.joiningPlayerId, function( error )
                 {
@@ -118,7 +119,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 game.removePlayer( request.query.droppingPlayerId, function( error )
                 {
@@ -143,7 +144,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 game.startGame( function( error )
                 {
@@ -168,7 +169,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 game.restart( function( error )
                 {
@@ -197,7 +198,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 game.addRole( request.query.role, function( error )
                 {
@@ -226,7 +227,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 game.removeRole( request.query.role, function( error )
                 {
@@ -251,7 +252,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 response.status(200).json( game );
             });
@@ -267,7 +268,7 @@ var GameController = module.exports =
         }
         else
         {
-            new GameModel( request.query.gameId, function( game )
+            gameUtility.get( request.query.gameId, function( game )
             {
                 game.goToNextNightPhase( function( error )
                 {

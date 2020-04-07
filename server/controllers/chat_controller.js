@@ -21,6 +21,9 @@ var ChatController = module.exports =
             {
                 console.log( "Responding with " + JSON.stringify(responseJson));
                 response.status( 200 ).json( responseJson );
+                
+                const params = chatApi.getParamsFromHook( request.body, request.query );
+                chatApi.broadcastUpdates( params.gameId ); //we don't care about the cb, this can happen async
             }
         }.bind(this));
     }

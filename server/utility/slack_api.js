@@ -2,7 +2,6 @@
 /*global console*/
 /*global require*/
 
-const request = require( "request" );
 var utility = require( "./utility.js" );
 var config = require( "../config.js" );
 var gameUtility = require( "./game_utility.js" );
@@ -28,24 +27,56 @@ var SlackAPI = module.exports =
         utility.httpsPostJson( "https://slack.com/api/chat.postEphemeral", payload, process.env.SLACK_AUTH, cb );
     },
     
-    postUpdateToResponseUrl: function( game, userId, responseUrl, cb )
+    broadcastUpdates: function( gameId, cb )
     {
-        const payload = {};
-        this._preparePayload( game, userId, payload );
-        this._callResponseUrl( responseUrl, payload, cb );
+        let doneCount = 0;
+        let doneTargetCount = 0;
+        const doneFunc = () =>
+        {
+            doneCount++;
+            if ( doneCount >= doneTargetCount && cb )
+            {
+                cb();
+            }
+        };
+        
+        gameUtility.get( gameId, ( game ) =>
+        {
+            Object.keys( game.responseUrls ).forEach( ( playerId ) =>
+            {
+                doneTargetCount++;
+                
+                const payload = {};
+                this._preparePayload( game, playerId, payload );
+                this._callResponseUrl( game.responseUrls[playerId], payload, doneFunc );
+            });
+            
+            if ( doneTargetCount <= 0 )
+            {
+                doneFunc();
+            }
+        });
+    },
+    
+    getParamsFromHook: function( body, query )
+    {
+        const incomingPayload = body.payload ? JSON.parse( body.payload ) : null;
+        //console.log( "payload is " + JSON.stringify( incomingPayload ) );
+        const channelId = incomingPayload && incomingPayload.container ? incomingPayload.container.channel_id : body.channel_id;
+        const responseUrl = incomingPayload ? incomingPayload.response_url : body.response_url;
+        const userId = incomingPayload && incomingPayload.user ? incomingPayload.user.id : body.user_id;
+        const actions = incomingPayload ? incomingPayload.actions : null;
+        
+        return { channelId, responseUrl, userId, actions };
     },
     
     respondToHook: function( body, query, cb )
     {
-        console.log( "Body type " + body + " " + typeof(body));
-        console.log( "Body coming in: " + JSON.stringify(body));
+        //console.log( "Body type " + body + " " + typeof(body));
+        //console.log( "Body coming in: " + JSON.stringify(body));
         
-        const incomingPayload = body.payload ? JSON.parse( body.payload ) : null;
-        
-        console.log( "payload is " + JSON.stringify( incomingPayload ) );
-        
-        const channelId = incomingPayload && incomingPayload.container ? incomingPayload.container.channel_id : body.channel_id;
-        const responseUrl = incomingPayload ? incomingPayload.response_url : body.response_url;
+        const params = this.getParamsFromHook( body, query );
+        const channelId = params.channelId;
         
         if ( !channelId )
         {
@@ -53,15 +84,14 @@ var SlackAPI = module.exports =
             return;
         }
         
-        const userId = incomingPayload && incomingPayload.user ? incomingPayload.user.id : body.user_id;
-        const actions = incomingPayload ? incomingPayload.actions : null;
+        const responseUrl = params.responseUrl;
+        const userId = params.userId;
+        const actions = params.actions;
         
         const payload = {};
                 
         gameUtility.get( channelId, function( game )
         {
-            console.log( "Game's update callback is " + game.updateCb );
-            
             if ( actions )
             {
                 this._respondToActions( game, actions, userId, responseUrl, function( error )
@@ -91,7 +121,14 @@ var SlackAPI = module.exports =
                 this._preparePayload( game, userId, payload );
                 cb( null, payload );
             }
-        }.bind(this), this.postUpdateToResponseUrl.bind(this) );
+        }.bind(this) );
+    },
+    
+    _callResponseUrl: function( responseUrl, payload, cb )
+    {
+        //if we set this flag then Slack will replace the original message with this updated one
+        payload.replace_original = true;
+        utility.httpsPostJson( responseUrl, payload, process.env.SLACK_AUTH, cb );
     },
     
     //TODO - should move all of this into a view of some kind
@@ -556,12 +593,5 @@ var SlackAPI = module.exports =
         }
         
         return actionIds;
-    },
-    
-    _callResponseUrl: function( responseUrl, payload, cb )
-    {
-        //if we send this then Slack will replace the original message with this updated one
-        payload.replace_original = true;
-        utility.httpsPostJson( responseUrl, payload, process.env.SLACK_AUTH, cb );
     }
 }

@@ -45,9 +45,6 @@ var GameModel = module.exports = function( channelId, cb )
     
     //maps player ids to response urls – when the game updates, it sends the updates to all the URLs
     this.responseUrls = {};
-    
-    //call this whenever we make an update
-    this.updateCb = null;
 
     //if this game already exists, load it, otherwise just return a new game
     database.exists( this.getDatabaseKey(), function( error, exists )
@@ -86,7 +83,6 @@ GameModel.prototype._initializeNewGame = function( clearPlayers )
     this.initialRoles = {};
     this.roleData = {};
     this.responseUrls = {};
-    this.updateCb = null;
     
     config.RoleList.forEach( ( role ) => {
         for ( let roleDupeIndex = 0; roleDupeIndex < config.RoleCounts[role]; roleDupeIndex++ )
@@ -104,7 +100,6 @@ GameModel.prototype.getDatabaseKey = function()
 GameModel.prototype.save = function( cb )
 {
     database.setJsonFromObject( this.getDatabaseKey(), this, cb );
-    this._refreshResponses();
 };
 
 //refreshes this object's values based upon what's in the database
@@ -137,12 +132,6 @@ GameModel.prototype.restart = function( cb )
     this._initializeNewGame( false );
     this.save( cb );
 };
-
-GameModel.prototype.setUpdateCb = function( updateCb, cb )
-{
-    this.updateCb = updateCb;
-    this.save( cb );
-}
 
 //adds a new player, and includes an optional responseUrl for them
 GameModel.prototype.addPlayer = function( userId, cb, responseUrl )
@@ -837,17 +826,4 @@ GameModel.prototype._getWerewolfCount = function()
         }
     });
     return werewolfCount;
-};
-
-GameModel.prototype._refreshResponses = function()
-{
-    if ( !this.updateCb )
-    {
-        return;
-    }
-    
-    Object.keys( this.responseUrls ).forEach( function( playerId )
-    {
-        this.updateCb( this, playerId, this.responseUrls[playerId], function(){} );
-    }.bind(this));
 };

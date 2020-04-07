@@ -12,6 +12,11 @@ var DiscordAPI = module.exports =
         cb();
     },
     
+    getParamsFromHook: function( body, query )
+    {
+        return {};
+    },
+    
     getUsersList: function( cb )
     {
         cb( [] );

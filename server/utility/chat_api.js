@@ -18,6 +18,12 @@ var ChatAPI = module.exports =
         this._getApi().respondToHook.apply( this._getApi(), arguments );
     },
     
+    //{ channelId, responseUrl, userId, actions }
+    getParamsFromHook: function( body, query )
+    {
+        this._getApi().getParamsFromHook.apply( this._getApi(), arguments );
+    },
+    
     post: function( message, channel, cb )
     {
         this._getApi().post.apply( this._getApi(), arguments );
@@ -31,6 +37,11 @@ var ChatAPI = module.exports =
     getUsersList: function( cb )
     {
         this._getApi().getUsersList.apply( this._getApi(), arguments );
+    },
+    
+    broadcastUpdates: function( gameId, cb )
+    {
+        this._getApi().broadcastUpdates.apply( this._getApi(), arguments );
     },
     
     _getApi: function()
