@@ -113,11 +113,17 @@ var TestUtils = module.exports =
                             game.players.forEach( ( playerId, index ) =>
                             {
                                 //note that this may cause duplicates of some roles
-                                if ( index < TestUtils.forcedRoles.length &&
-                                    (!omittedForcedRoles || omittedForcedRoles.indexOf( TestUtils.forcedRoles[index] ) < 0 ) )
+                                if ( index < TestUtils.forcedRoles.length )
                                 {
-                                    game.roles[ playerId ] = TestUtils.forcedRoles[ index ];
-                                    game.initialRoles[ playerId ] = TestUtils.forcedRoles[ index ];
+                                    let role = TestUtils.forcedRoles[ index ];
+                                    
+                                    if ( omittedForcedRoles && omittedForcedRoles.indexOf( TestUtils.forcedRoles[index] ) >= 0 )
+                                    {
+                                        role = "villager";
+                                    }
+                                    
+                                    game.roles[ playerId ] = role;
+                                    game.initialRoles[ playerId ] = role;
                                 }
                             });
                             
@@ -157,23 +163,32 @@ var TestUtils = module.exports =
         game.doppelgangerCopy( doppelgangerPlayerId, targetPlayerId, cb.bind( this, doppelgangerPlayerId ) );
     },
     
-    doSeerReveal: function( game, targetRole, cb, skipDoppelganger )
+    doWerewolfReveal: function( game, cb, skipDoppelganger )
     {
-        const seerFunc = function()
+        const werewolfFunc = function()
         {
-            const seerPlayerId = TestUtils.findPlayerWithRole( game, "seer" );
-            const targetPlayerId = TestUtils.findPlayerWithRole( game, targetRole );
-            game.seerReveal( seerPlayerId, targetPlayerId, cb );
+            const werewolfPlayerId = TestUtils.findPlayerWithRole( game, "werewolf" );
+            game.werewolfReveal( werewolfPlayerId, cb );
         };
         
         if ( skipDoppelganger )
         {
-            seerFunc();
+            werewolfFunc();
         }
         else
         {
-            TestUtils.doDoppelgangerCopy( game, "villager", seerFunc );
+            TestUtils.doDoppelgangerCopy( game, "villager", werewolfFunc );
         }
+    },
+    
+    doSeerReveal: function( game, targetRole, cb, skipDoppelganger )
+    {
+        TestUtils.doWerewolfReveal( game, function()
+        {
+            const seerPlayerId = TestUtils.findPlayerWithRole( game, "seer" );
+            const targetPlayerId = TestUtils.findPlayerWithRole( game, targetRole );
+            game.seerReveal( seerPlayerId, targetPlayerId, cb );
+        }, skipDoppelganger );
     },
     
     doRobberSteal: function( game, cb, skipDoppelganger )

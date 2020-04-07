@@ -58,7 +58,7 @@ describe( "Seer", function()
         utils.createTestGame( function( setGame )
         {
             game = setGame;
-            utils.doDoppelgangerCopy( game, "villager", function()
+            utils.doWerewolfReveal( game, function()
             {
                 seerPlayerId = utils.findPlayerWithRole( game, "seer" );
                 cb();
