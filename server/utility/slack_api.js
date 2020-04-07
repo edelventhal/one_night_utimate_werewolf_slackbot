@@ -60,6 +60,8 @@ var SlackAPI = module.exports =
                 
         gameUtility.get( channelId, function( game )
         {
+            console.log( "Game's update callback is " + game.updateCb );
+            
             if ( actions )
             {
                 this._respondToActions( game, actions, userId, responseUrl, function( error )

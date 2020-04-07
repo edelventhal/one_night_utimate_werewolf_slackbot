@@ -14,11 +14,13 @@ var GameUtility = module.exports =
             {
                 game.setUpdateCb( updateCb, function( error )
                 {
+                    console.log( "SET THE UPDATE CB TO " + updateCb );
                     cb( game );
                 });
             }
             else
             {
+                console.log( "NO UPDATE CB" );
                 cb( game );
             }
         });
