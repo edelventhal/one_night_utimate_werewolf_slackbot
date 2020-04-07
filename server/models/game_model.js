@@ -11,7 +11,7 @@ const GAME_KEY_PREFIX = "game.";
 //creates a new game and calls cb when done, with the game and a boolean parameter on whether this is a new game.
 //automatically loads the game from the db if it's an existing game, otherwise creates a new one.
 //optionally you can provide a callback that will be called when we update
-var GameModel = module.exports = function( channelId, cb, updateCb )
+var GameModel = module.exports = function( channelId, cb )
 {
     this.id = channelId;
     
@@ -47,7 +47,7 @@ var GameModel = module.exports = function( channelId, cb, updateCb )
     this.responseUrls = {};
     
     //call this whenever we make an update
-    this.updateCb = updateCb;
+    this.updateCb = null;
 
     //if this game already exists, load it, otherwise just return a new game
     database.exists( this.getDatabaseKey(), function( error, exists )
@@ -86,6 +86,7 @@ GameModel.prototype._initializeNewGame = function( clearPlayers )
     this.initialRoles = {};
     this.roleData = {};
     this.responseUrls = {};
+    this.updateCb = null;
     
     config.RoleList.forEach( ( role ) => {
         for ( let roleDupeIndex = 0; roleDupeIndex < config.RoleCounts[role]; roleDupeIndex++ )
@@ -136,6 +137,12 @@ GameModel.prototype.restart = function( cb )
     this._initializeNewGame( false );
     this.save( cb );
 };
+
+GameModel.prototype.setUpdateCb = function( updateCb, cb )
+{
+    this.updateCb = updateCb;
+    this.save( cb );
+}
 
 //adds a new player, and includes an optional responseUrl for them
 GameModel.prototype.addPlayer = function( userId, cb, responseUrl )
