@@ -191,7 +191,7 @@ GameModel.prototype.hasPlayer = function( userId )
     return this.players.indexOf( userId ) >= 0;
 };
 
-GameModel.prototype.setResponseUrl = function( userId, resposeUrl, cb )
+GameModel.prototype.setResponseUrl = function( userId, responseUrl, cb )
 {
     if ( this.players.indexOf( userId ) < 0 )
     {
