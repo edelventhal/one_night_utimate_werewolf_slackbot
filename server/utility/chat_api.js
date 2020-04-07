@@ -21,7 +21,7 @@ var ChatAPI = module.exports =
     //{ channelId, responseUrl, userId, actions }
     getParamsFromHook: function( body, query )
     {
-        this._getApi().getParamsFromHook.apply( this._getApi(), arguments );
+        return this._getApi().getParamsFromHook.apply( this._getApi(), arguments );
     },
     
     post: function( message, channel, cb )
