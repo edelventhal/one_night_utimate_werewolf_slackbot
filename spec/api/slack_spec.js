@@ -134,6 +134,7 @@ describe( "Slack API", function()
     {
         new GameModel( GAME_ID, function( game )
         {
+            console.log ("we got a game " + GAME_ID );
             game.reset( cb );
         });
     });

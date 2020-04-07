@@ -6,8 +6,8 @@ var GameModel = require( "../models/game_model.js" );
 
 var GameUtility = module.exports =
 {
-    get: function( gameId, cb )
+    get: function( gameId, cb, updateCb )
     {
-        new GameModel( gameId, cb );
+        new GameModel( gameId, cb, updateCb );
     }
 }

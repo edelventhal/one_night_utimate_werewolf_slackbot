@@ -6,6 +6,7 @@ const request = require( "request" );
 var utility = require( "./utility.js" );
 var config = require( "../config.js" );
 var gameUtility = require( "./game_utility.js" );
+var GameModel = require( "../models/game_model.js" );
 
 var SlackAPI = module.exports =
 {
@@ -27,53 +28,15 @@ var SlackAPI = module.exports =
         utility.httpsPostJson( "https://slack.com/api/chat.postEphemeral", payload, process.env.SLACK_AUTH, cb );
     },
     
+    postUpdateToResponseUrl: function( game, userId, responseUrl, cb )
+    {
+        const payload = {};
+        this._preparePayload( game, userId, payload );
+        this._callResponseUrl( responseUrl, payload, cb );
+    },
+    
     respondToHook: function( body, query, cb )
     {
-        //for testing...
-// body = {
-//   "payload": {
-//     "type": "block_actions",
-//     "team": {
-//       "id": "T6L6E5Q5B",
-//       "domain": "ubiquity6"
-//     },
-//     "user": {
-//       "id": "UJ2R60QHL",
-//       "username": "eli",
-//       "name": "eli",
-//       "team_id": "T6L6E5Q5B"
-//     },
-//     "api_app_id": "A010V2RUS4C",
-//     "token": "PtDDt1NqjzYQ9w7lszFZG0Ko",
-//     "container": {
-//       "type": "message",
-//       "message_ts": "1585272292.001200",
-//       "channel_id": "G010XMKRRPH",
-//       "is_ephemeral": true
-//     },
-//     "trigger_id": "1030051872693.224218194181.30f570b6214b3ea525883cbe8c25b565",
-//     "channel": {
-//       "id": "G010XMKRRPH",
-//       "name": "privategroup"
-//     },
-//     "response_url": "https://hooks.slack.com/actions/T6L6E5Q5B/1017331180578/ujDPUcuT18Bceq45finyo2pa",
-//     "actions": [
-//       {
-//         "action_id": "nQN",
-//         "block_id": "Z/H",
-//         "text": {
-//           "type": "plain_text",
-//           "text": "Join Game",
-//           "emoji": true
-//         },
-//         "value": "joinUJ2R60QHL",
-//         "type": "button",
-//         "action_ts": "1585272468.923882"
-//       }
-//     ]
-//   }
-// }
-
         console.log( "Body type " + body + " " + typeof(body));
         console.log( "Body coming in: " + JSON.stringify(body));
         
@@ -99,7 +62,7 @@ var SlackAPI = module.exports =
         {
             if ( actions )
             {
-                this._respondToActions( game, actions, userId, function( error )
+                this._respondToActions( game, actions, userId, responseUrl, function( error )
                 {
                     if ( error )
                     {
@@ -112,22 +75,7 @@ var SlackAPI = module.exports =
                         //edit the original message with an updated message
                         if ( responseUrl )
                         {
-                            //if we send this then Slack will replace the original message with this updated one
-                            payload.replace_original = true;
-                            console.log( "Sending response to URL: " + responseUrl + " with payload " + JSON.stringify( payload ) );
-                            utility.httpsPostJson( responseUrl, payload, process.env.SLACK_AUTH, cb );
-                            
-                            // request.post( responseUrl, payload, function( responseError, res, body )
-                            // {
-                            //     if ( responseError )
-                            //     {
-                            //         cb( responseError );
-                            //     }
-                            //     else
-                            //     {
-                            //         cb( null, payload );
-                            //     }
-                            // });
+                            this._callResponseUrl( responseUrl, payload, cb );
                         }
                         else
                         {
@@ -141,7 +89,7 @@ var SlackAPI = module.exports =
                 this._preparePayload( game, userId, payload );
                 cb( null, payload );
             }
-        }.bind(this));
+        }.bind(this), this.postUpdateToResponseUrl.bind(this) );
     },
     
     //TODO - should move all of this into a view of some kind
@@ -468,7 +416,7 @@ var SlackAPI = module.exports =
         return selectAction;
     },
     
-    _respondToActions: function( game, actions, userId, cb )
+    _respondToActions: function( game, actions, userId, responseUrl, cb )
     {
         let actionProcessedCount = 0;
         let validActionCount = 0;
@@ -492,7 +440,7 @@ var SlackAPI = module.exports =
         {
             const actionIds = this._findActionIds( action );
             validActionCount += actionIds.length;
-            this._respondToAction( game, actionIds, userId, actionCompleteFunc );
+            this._respondToAction( game, actionIds, userId, responseUrl, actionCompleteFunc );
             
             // actionIds.forEach( function( actionId )
             // {
@@ -501,7 +449,7 @@ var SlackAPI = module.exports =
         }.bind(this));
     },
     
-    _respondToAction: function( game, actionIds, userId, cb )
+    _respondToAction: function( game, actionIds, userId, responseUrl, cb )
     {
         const actionId = actionIds.length > 0 ? actionIds[0] : null;
                 
@@ -514,7 +462,7 @@ var SlackAPI = module.exports =
         if ( actionId.indexOf( "join" ) === 0 )
         {
             const userId = actionId.substring( "join".length );
-            game.addPlayer( userId, cb );
+            game.addPlayer( userId, cb, responseUrl );
         }
         else if ( actionId.indexOf( "drop" ) === 0 )
         {
@@ -606,5 +554,12 @@ var SlackAPI = module.exports =
         }
         
         return actionIds;
+    },
+    
+    _callResponseUrl: function( responseUrl, payload, cb )
+    {
+        //if we send this then Slack will replace the original message with this updated one
+        payload.replace_original = true;
+        utility.httpsPostJson( responseUrl, payload, process.env.SLACK_AUTH, cb );
     }
 }

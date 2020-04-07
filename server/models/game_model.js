@@ -10,7 +10,8 @@ const GAME_KEY_PREFIX = "game.";
 
 //creates a new game and calls cb when done, with the game and a boolean parameter on whether this is a new game.
 //automatically loads the game from the db if it's an existing game, otherwise creates a new one.
-var GameModel = module.exports = function( channelId, cb )
+//optionally you can provide a callback that will be called when we update
+var GameModel = module.exports = function( channelId, cb, updateCb )
 {
     this.id = channelId;
     
@@ -41,6 +42,12 @@ var GameModel = module.exports = function( channelId, cb )
     
     //the phase of the night if the current phase is GamePhase.night, matches config.NightPhase
     this.nightPhase = 0;
+    
+    //maps player ids to response urls – when the game updates, it sends the updates to all the URLs
+    this.responseUrls = {};
+    
+    //call this whenever we make an update
+    this.updateCb = updateCb;
 
     //if this game already exists, load it, otherwise just return a new game
     database.exists( this.getDatabaseKey(), function( error, exists )
@@ -78,6 +85,7 @@ GameModel.prototype._initializeNewGame = function( clearPlayers )
     this.roles = {};
     this.initialRoles = {};
     this.roleData = {};
+    this.responseUrls = {};
     
     config.RoleList.forEach( ( role ) => {
         for ( let roleDupeIndex = 0; roleDupeIndex < config.RoleCounts[role]; roleDupeIndex++ )
@@ -95,6 +103,7 @@ GameModel.prototype.getDatabaseKey = function()
 GameModel.prototype.save = function( cb )
 {
     database.setJsonFromObject( this.getDatabaseKey(), this, cb );
+    this._refreshResponses();
 };
 
 //refreshes this object's values based upon what's in the database
@@ -128,7 +137,8 @@ GameModel.prototype.restart = function( cb )
     this.save( cb );
 };
 
-GameModel.prototype.addPlayer = function( userId, cb )
+//adds a new player, and includes an optional responseUrl for them
+GameModel.prototype.addPlayer = function( userId, cb, responseUrl )
 {
     if ( this.players.indexOf( userId ) >= 0 )
     {
@@ -145,6 +155,12 @@ GameModel.prototype.addPlayer = function( userId, cb )
     else
     {
         this.players.push( userId );
+        
+        if ( responseUrl )
+        {
+            this.responseUrls[userId] = responseUrl;
+        }
+        
         this.save( cb );
     }
 };
@@ -166,6 +182,9 @@ GameModel.prototype.removePlayer = function( userId, cb )
         else
         {
             this.players.splice( userIndex, 1 );
+            delete this.responseUrls[userId];
+            delete this.roles[userId];
+            delete this.initialRoles[userId];
             this.save( cb );
         }
     }
@@ -753,7 +772,7 @@ GameModel.prototype._getRandomAvaialableRoles = function( selectCount )
     }
     
     return resultsArr;
-}
+};
 
 GameModel.prototype._getWerewolfCount = function()
 {
@@ -766,4 +785,17 @@ GameModel.prototype._getWerewolfCount = function()
         }
     });
     return werewolfCount;
-}
+};
+
+GameModel.prototype._refreshResponses = function()
+{
+    if ( !this.updateCb )
+    {
+        return;
+    }
+    
+    Object.keys( this.responseUrls ).forEach( function( playerId )
+    {
+        this.updateCb( this, playerId, this.responseUrls[playerId], function(){} );
+    }.bind(this));
+};
