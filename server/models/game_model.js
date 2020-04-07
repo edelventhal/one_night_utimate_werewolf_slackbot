@@ -475,7 +475,18 @@ GameModel.prototype.werewolfReveal = function( werewolfPlayerId, cb )
     }
     
     this._goToNextNightPhase();
-    cb( null, this._getRandomAvaialableRoles(1) );
+    this.save( ( error ) =>
+    {
+        if ( error )
+        {
+            cb( error )
+        }
+        else
+        {
+            cb( null, this._getRandomAvaialableRoles(1) );
+        }
+    });
+    
 };
 
 //calls cb with an array of viewed cards as param 2.
@@ -517,12 +528,34 @@ GameModel.prototype.seerReveal = function( seerPlayerId, targetPlayerIdOrNull, c
         }
         
         this._goToNextNightPhase();
-        cb( null, [ this.roles[ targetPlayerIdOrNull ] ] );
+        
+        this.save( ( error ) =>
+        {
+            if ( error )
+            {
+                cb( error )
+            }
+            else
+            {
+                cb( null, [ this.roles[ targetPlayerIdOrNull ] ] );
+            }
+        });
     }
     else
     {
         this._goToNextNightPhase();
-        cb( null, this._getRandomAvaialableRoles( 2 ) );
+        
+        this.save( ( error ) =>
+        {
+            if ( error )
+            {
+                cb( error )
+            }
+            else
+            {
+                cb( null, this._getRandomAvaialableRoles( 2 ) );
+            }
+        });
     }
 };
 
@@ -693,6 +726,18 @@ GameModel.prototype.insomniacInspect = function( insomniacPlayerId, cb )
             cb( null, this.roles[ insomniacPlayerId ] );
         }
     });
+};
+
+GameModel.prototype.goToNextNightPhase = function( cb )
+{
+    if ( this.phase !== config.GamePhase.Night )
+    {
+        cb( "That can only be done at night!" );
+        return;
+    }
+    
+    this._goToNextNightPhase();
+    this.save( cb );
 };
 
 GameModel.prototype._assignRoles = function()

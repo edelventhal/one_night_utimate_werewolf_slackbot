@@ -32,6 +32,16 @@ var index =
         });
     },
     
+    startGame: function( gameTextId, outputDivId )
+    {
+        const gameId = document.getElementById( gameTextId ).value;
+        const outputDiv = document.getElementById( outputDivId );
+        server.startGame( gameId, function()
+        {
+            outputDiv.innerHTML = "Done.";
+        });
+    },
+    
     restartGame: function( gameTextId, outputDivId )
     {
         const gameId = document.getElementById( gameTextId ).value;
@@ -41,4 +51,14 @@ var index =
             outputDiv.innerHTML = "Done.";
         });
     },
+    
+    nextTurn: function( gameTextId, outputDivId )
+    {
+        const gameId = document.getElementById( gameTextId ).value;
+        const outputDiv = document.getElementById( outputDivId );
+        server.nextTurn( gameId, function()
+        {
+            outputDiv.innerHTML = "Done.";
+        });
+    }
 };

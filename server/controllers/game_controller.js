@@ -256,5 +256,31 @@ var GameController = module.exports =
                 response.status(200).json( game );
             });
         }
+    },
+    
+    //for debugging
+    nextTurn: function( request, response )
+    {
+        if ( !request.query.gameId )
+        {
+            response.status(500).json( { success: false, error: "gameId is a required parameter." } );
+        }
+        else
+        {
+            new GameModel( request.query.gameId, function( game )
+            {
+                game.goToNextNightPhase( function( error )
+                {
+                    if ( error )
+                    {
+                        response.status(500).json( { success: false, error: "Failed to go to next night phase! " + error } );
+                    }
+                    else
+                    {
+                        response.status(200).json( { success: true } );
+                    }
+                });
+            });
+        }
     }
 };
