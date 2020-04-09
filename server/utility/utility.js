@@ -99,6 +99,8 @@ var Utility = module.exports =
             body: dataString
         };
 
+        console.log( "REQUEST about to send headers " + JSON.stringify( headers ) + " and data " + dataString + " and options " + JSON.stringify( options ) );
+        
         request( options, function( error, response, body )
          {
              if ( !error && body && typeof( body === "string" ) )
