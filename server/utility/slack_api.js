@@ -181,27 +181,28 @@ var SlackAPI = module.exports =
     {
         const isFull = game.players.length >= config.maximumPlayerCount;
         
-        payload.blocks =
-        [
+        payload.blocks = payload.blocks || [];
+        payload.blocks.push(
+        {
+            "type": "section",
+            "text":
             {
-                "type": "section",
-                "text":
-                {
-                    "type": "mrkdwn",
-                    "text": "Welcome to *One Night Ultimate Werewolf* :wolf:!\n" +
-                        ( isFull ? "The game is currently full." : "To play a game, have between 3-10 players join with the `/werewolf` command.\n" ) +
-                        "You can set which roles are allowed in the game, or enter nothing to use the default roles."
-                        //appended dynamically below
-                }
-            },
-            {
-                "type": "actions",
-                "elements":
-                [
-                    //added dynamically below
-                ]
+                "type": "mrkdwn",
+                "text": "Welcome to *One Night Ultimate Werewolf* :wolf:!\n" +
+                    ( isFull ? "The game is currently full." : "To play a game, have between 3-10 players join with the `/werewolf` command.\n" ) +
+                    "You can set which roles are allowed in the game, or enter nothing to use the default roles."
+                    //appended dynamically below
             }
-        ]
+        });
+        
+        payload.blocks.push(
+        {
+            "type": "actions",
+            "elements":
+            [
+                //added dynamically below
+            ]
+        });
         
         const messageBlock = payload.blocks[0];
         
@@ -342,25 +343,25 @@ var SlackAPI = module.exports =
     {
         if ( !game.hasPlayer( userId ) )
         {
-            
+            //TODO
         }
+        
         const role = game.roles[userId];
         const isUserTurn = game.isUserTurn( userId );
         
-        payload.blocks =
-        [
+        payload.blocks = payload.blocks || [];
+        payload.blocks.push(
+        {
+            "type": "section",
+            "text":
             {
-                "type": "section",
-                "text":
-                {
-                    "type": "mrkdwn",
-                    "text": "It's *NIGHT*. :full_moon:\n" +
-                        "Play the One Night Ultimate Werewolf app with the default game and all roles you chose, then follow its instructions.\n" +
-                        "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
-                        ( isUserTurn ? "Your turn! Perform your action." : "*CLOSE YOUR EYES* Open only when told, then use the `/werewolf` command again." )
-                }
+                "type": "mrkdwn",
+                "text": "It's *NIGHT*. :full_moon:\n" +
+                    "Play the One Night Ultimate Werewolf app with the default game and all roles you chose, then follow its instructions.\n" +
+                    "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
+                    ( isUserTurn ? "Your turn! Perform your action." : "*CLOSE YOUR EYES* Open only when told, then use the `/werewolf` command again." )
             }
-        ]
+        });
         
         if ( isUserTurn )
         {
@@ -759,17 +760,16 @@ var SlackAPI = module.exports =
     
     _appendActionResultToPayload: function( resultString, payload )
     {
-        if ( payload.blocks )
+        payload.blocks = payload.blocks || [];
+        
+        payload.blocks.splice( 0, 0,
         {
-            payload.blocks.splice( 0, 0,
+            "type": "section",
+            "text":
             {
-                "type": "section",
-                "text":
-                {
-                    "type": "mrkdwn",
-                    "text": resultString
-                }
-            });
-        }
+                "type": "mrkdwn",
+                "text": resultString
+            }
+        });
     }
 }
