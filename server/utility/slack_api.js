@@ -374,7 +374,7 @@ var SlackAPI = module.exports =
                 ]
             };
             
-            payload.blocks.push( actionsBlock );
+            let addActionsBlock = true;
             
             if ( role === "doppelganger" )
             {
@@ -418,6 +418,7 @@ var SlackAPI = module.exports =
             }
             else if ( role === "troublemaker" )
             {
+                //SO annoying must be special-cased because... reasons?
                 const multiSelectBlock =
                 {
                     "type": "section",
@@ -429,6 +430,7 @@ var SlackAPI = module.exports =
                 };
                 multiSelectBlock.accessory = this._getPlayersSelectAction( game, userId, "Select players", "troublemakerSwap", true );
                 payload.blocks.push( multiSelectBlock );
+                addActionsBlock = false;
             }
             else if ( role === "drunk" )
             {
@@ -457,6 +459,11 @@ var SlackAPI = module.exports =
                     },
                     "value": "insomniacInspect"
                 });
+            }
+            
+            if ( addActionsBlock )
+            {
+                payload.blocks.push( actionsBlock );
             }
         }
     },
