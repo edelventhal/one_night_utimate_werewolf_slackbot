@@ -115,6 +115,7 @@ var SlackAPI = module.exports =
                     {
                         if ( error )
                         {
+                            console.log( "Responded to actions with error." );
                             cb( error );
                         }
                         else
@@ -559,7 +560,7 @@ var SlackAPI = module.exports =
         actions.forEach( function( action )
         {
             const actionIds = this._findActionIds( action );
-            validActionCount += actionIds.length;
+            validActionCount++;
             this._respondToAction( game, actionIds, userId, responseUrl, payload, actionCompleteFunc );
             
             // actionIds.forEach( function( actionId )
