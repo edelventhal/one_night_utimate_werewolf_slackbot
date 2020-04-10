@@ -138,6 +138,14 @@ describe( "Slack API", function()
         });
     });
     
+    // it( "should be able to get a payload from a slash command", function( cb )
+    // {
+    //     slack.respondToHook( SLASH_COMMAND_BODY, {}, function( error, responseJson )
+    //     {
+    //
+    //     });
+    // });
+    
     it( "should be able to add a troublemaker to the roles", function( cb )
     {
         slack.respondToHook( ADD_TROUBLEMAKER_BODY, {}, function( error )

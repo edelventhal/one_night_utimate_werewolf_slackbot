@@ -40,6 +40,21 @@ var SlackAPI = module.exports =
             }
         };
         
+        //NEXT - this piece of shit fucker cunt doesn't work, it sends:
+        /*Sending headers:  {
+
+2020-04-07T18:25:43.967434+00:00 app[web.1]:   Authorization: 'Bearer xoxb-224218194181-1018209827619-EcAW7ZgUh9pAanZJ2yEOGJsJ',
+
+2020-04-07T18:25:43.967434+00:00 app[web.1]:   'Content-type': 'application/json'
+
+2020-04-07T18:25:43.967434+00:00 app[web.1]: }
+
+2020-04-07T18:25:43.974530+00:00 app[web.1]: ::ffff:10.168.89.215 - - [07/Apr/2020:18:25:43 +0000] "GET /game/nextTurn?gameId=G010XMKRRPH HTTP/1.1" 200 16 "https://one-night-werewolf-bot.herokuapp.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:74.0) Gecko/20100101 Firefox/74.0"
+
+2020-04-07T18:25:44.080981+00:00 app[web.1]: undefined:1
+
+2020-04-07T18:25:44.080983+00:00 app[web.1]: no_text*/
+            //into the http request utility shit
         gameUtility.get( gameId, ( game ) =>
         {
             Object.keys( game.responseUrls ).forEach( ( playerId ) =>
@@ -154,6 +169,11 @@ var SlackAPI = module.exports =
         else if ( game.phase === config.GamePhase.Night )
         {
             this._preparePayloadNight( game, userId, payload );
+        }
+        //doesn't include Day yet, but I'm not sure that matters?
+        else
+        {
+            this._preparePayloadFinished( game, userId, payload );
         }
     },
     
@@ -430,6 +450,37 @@ var SlackAPI = module.exports =
         }
     },
     
+    _preparePayloadFinished: function( game, userId, payload )
+    {
+        payload.blocks =
+        [
+            {
+                "type": "section",
+                "text":
+                {
+                    "type": "mrkdwn",
+                    "text": "Figure out who the werewolf is!"
+                }
+            },
+            {
+                "type": "actions",
+                "elements":
+                [
+                    {
+                        "type": "button",
+                        "text":
+                        {
+                            "type": "plain_text",
+                            "text": "Restart Game",
+                            "emoji": true
+                        },
+                        "value": "restart"
+                    }
+                ]
+            }
+        ]
+    },
+    
     _getPlayersSelectAction: function( game, userId, text, selectValuePrefix, multiSelect )
     {
         const selectAction =
@@ -533,6 +584,10 @@ var SlackAPI = module.exports =
         else if ( actionId.indexOf( "start" ) === 0 )
         {
             game.startGame( cb );
+        }
+        else if ( actionId.indexOf( "restart" ) === 0 )
+        {
+            game.restartGame( cb );
         }
         else if ( actionId.indexOf( "doppelgangerCopy" ) === 0 )
         {

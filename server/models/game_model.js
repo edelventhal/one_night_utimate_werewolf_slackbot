@@ -793,7 +793,7 @@ GameModel.prototype._goToNextNightPhase = function()
             isActiveRole = false;
         }
         
-        if ( roleExists && config.ActiveNightRoles[ role ] )
+        if ( roleExists && isActiveRole )
         {
             break;
         }
