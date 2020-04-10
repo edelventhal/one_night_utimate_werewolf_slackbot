@@ -418,7 +418,17 @@ var SlackAPI = module.exports =
             }
             else if ( role === "troublemaker" )
             {
-                actionsBlock.elements.push( this._getPlayersSelectAction( game, userId, "Swap two players", "troublemakerSwap", true ) );
+                const multiSelectBlock =
+                {
+                    "type": "section",
+                    "text":
+                    {
+                        "type": "mrkdwn",
+                        "text": "Choose two players to swap."
+                    }
+                };
+                multiSelectBlock.accessory = this._getPlayersSelectAction( game, userId, "Select players", "troublemakerSwap", true );
+                payload.blocks.push( multiSelectBlock );
             }
             else if ( role === "drunk" )
             {
