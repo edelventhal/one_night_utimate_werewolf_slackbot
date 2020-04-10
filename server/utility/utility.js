@@ -88,8 +88,6 @@ var Utility = module.exports =
             "Content-type": "application/json"
         };
         
-        console.log( "Sending headers: ", headers );
-
         const dataString = data ? JSON.stringify( data ) : "{}";
 
         const options = {
@@ -98,14 +96,16 @@ var Utility = module.exports =
             headers: headers,
             body: dataString
         };
-
-        console.log( "REQUEST about to send headers " + JSON.stringify( headers ) + " and data " + dataString + " and options " + JSON.stringify( options ) );
         
         request( options, function( error, response, body )
          {
              if ( !error && body && typeof( body === "string" ) )
              {
-                 body = JSON.parse( body );
+                 try
+                 {
+                     body = JSON.parse( body );
+                 }
+                 catch( err ) {}
              }
              cb( error, body );
          });
