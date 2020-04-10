@@ -356,7 +356,7 @@ var SlackAPI = module.exports =
                     "type": "mrkdwn",
                     "text": "It's *NIGHT*. :full_moon:\n" +
                         "Play the One Night Ultimate Werewolf app with the default game and all roles you chose, then follow its instructions.\n" +
-                        "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}.\n` +
+                        "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
                         ( isUserTurn ? "Your turn! Perform your action." : "*CLOSE YOUR EYES* Open only when told, then use the `/werewolf` command again." )
                 }
             }
