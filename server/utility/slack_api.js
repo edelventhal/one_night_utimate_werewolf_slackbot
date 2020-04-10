@@ -587,7 +587,7 @@ var SlackAPI = module.exports =
         }
         else if ( actionId.indexOf( "restart" ) === 0 )
         {
-            game.restartGame( cb );
+            game.restart( cb );
         }
         else if ( actionId.indexOf( "doppelgangerCopy" ) === 0 )
         {
