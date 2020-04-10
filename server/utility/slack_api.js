@@ -111,7 +111,7 @@ var SlackAPI = module.exports =
             {
                 if ( actions )
                 {
-                    this._respondToActions( game, actions, userId, responseUrl, function( error )
+                    this._respondToActions( game, actions, userId, responseUrl, payload, function( error )
                     {
                         if ( error )
                         {
@@ -518,7 +518,7 @@ var SlackAPI = module.exports =
         return selectAction;
     },
     
-    _respondToActions: function( game, actions, userId, responseUrl, cb )
+    _respondToActions: function( game, actions, userId, responseUrl, payload, cb )
     {
         let actionProcessedCount = 0;
         let validActionCount = 0;
@@ -542,7 +542,7 @@ var SlackAPI = module.exports =
         {
             const actionIds = this._findActionIds( action );
             validActionCount += actionIds.length;
-            this._respondToAction( game, actionIds, userId, responseUrl, actionCompleteFunc );
+            this._respondToAction( game, actionIds, userId, responseUrl, payload, actionCompleteFunc );
             
             // actionIds.forEach( function( actionId )
             // {
@@ -551,7 +551,7 @@ var SlackAPI = module.exports =
         }.bind(this));
     },
     
-    _respondToAction: function( game, actionIds, userId, responseUrl, cb )
+    _respondToAction: function( game, actionIds, userId, responseUrl, payload, cb )
     {
         const actionId = actionIds.length > 0 ? actionIds[0] : null;
                 
@@ -592,46 +592,141 @@ var SlackAPI = module.exports =
         else if ( actionId.indexOf( "doppelgangerCopy" ) === 0 )
         {
             const targetId = actionId.substring( "doppelgangerCopy".length );
-            game.doppelgangerCopy( userId, targetId, cb );
+            game.doppelgangerCopy( userId, targetId, ( error, newRole ) =>
+            {
+                if ( error )
+                {
+                    cb( error );
+                }
+                else
+                {
+                    this._appendActionResultToPayload( `You copied <@${targetId}> to become a *${newRole}*.\n`, payload );
+                    cb();
+                }
+            });
         }
         else if ( actionId.indexOf( "werewolfRevealMiddle" ) === 0 )
         {
-            game.werewolfReveal( userId, cb );
+            game.werewolfReveal( userId, ( error, revealedRole ) =>
+            {
+                if ( error )
+                {
+                    cb( error );
+                }
+                else
+                {
+                    this._appendActionResultToPayload( `There is an unassigned *${revealedRole}* role.\n`, payload );
+                    cb();
+                }
+            });
         }
         else if ( actionId.indexOf( "seerRevealMiddle" ) === 0 )
         {
-            game.seerReveal( userId, null, cb );
+            game.seerReveal( userId, null, ( error, revealedRoles ) =>
+            {
+                if ( error )
+                {
+                    cb( error );
+                }
+                else
+                {
+                    this._appendActionResultToPayload( `There are unassigned *${revealedRoles[0]}* and *${revealedRoles[1]}* roles.\n`, payload );
+                    cb();
+                }
+            });
         }
         else if ( actionId.indexOf( "seerRevealTarget" ) === 0 )
         {
             const targetId = actionId.substring( "seerRevealTarget".length );
-            game.seerReveal( userId, targetId, cb );
+            game.seerReveal( userId, targetId, ( error, revealedRole ) =>
+            {
+                if ( error )
+                {
+                    cb( error );
+                }
+                else
+                {
+                    this._appendActionResultToPayload( `<@${targetId}> is a *${revealedRole}*.\n`, payload );
+                    cb();
+                }
+            });
         }
         else if ( actionId.indexOf( "robberSteal" ) === 0 )
         {
             const targetId = actionId.substring( "robberSteal".length );
-            game.robberSteal( userId, targetId, cb );
+            game.robberSteal( userId, targetId, ( error, stolenRole ) =>
+            {
+                if ( error )
+                {
+                    cb( error );
+                }
+                else
+                {
+                    this._appendActionResultToPayload( `You stole <@${targetId}>'s role, so now you're a *${stolenRole}* and they're a *robber*.\n`, payload );
+                    cb();
+                }
+            });
         }
         else if ( actionId.indexOf( "troublemakerSwap" ) === 0 )
         {
             if ( actionIds.length < 2 )
             {
-                cb( "Must provide two targets." );
+                cb( "You must provide two targets." );
                 return;
             }
             
             const targetId0 = actionIds[0].substring( "troublemakerSwap".length );
             const targetId1 = actionIds[1].substring( "troublemakerSwap".length );
-            game.troublemakerSwap( userId, targetId0, targetId1, cb );
+            game.troublemakerSwap( userId, targetId0, targetId1, ( error ) =>
+            {
+                if ( error )
+                {
+                    cb( error );
+                }
+                else
+                {
+                    this._appendActionResultToPayload( `You swapped <@${targetId0}>'s and <@${targetId1}>'s roles.\n`, payload );
+                    cb();
+                }
+            });
         }
         else if ( actionId.indexOf( "drunkSwap" ) === 0 )
         {
             const targetId = actionId.substring( "drunkSwap".length );
-            game.drunkSwap( userId, targetId, cb );
+            game.drunkSwap( userId, targetId, ( error ) =>
+            {
+                if ( error )
+                {
+                    cb( error );
+                }
+                else
+                {
+                    this._appendActionResultToPayload( `You grabbed a random unassigned role from the middle, but you have no idea what it is!\n`, payload );
+                    cb();
+                }
+            });
         }
         else if ( actionId.indexOf( "insomniacInspect" ) === 0 )
         {
-            game.insomniacInspect( userId, cb );
+            game.insomniacInspect( userId, ( error, currentRole ) =>
+            {
+                if ( error )
+                {
+                    cb( error );
+                }
+                else
+                {
+                    if ( currentRole === "insomniac" )
+                    {
+                        this._appendActionResultToPayload( `Nobody messed with you all night, so you're still an *insomniac*.\n`, payload );
+                    }
+                    else
+                    {
+                        this._appendActionResultToPayload( `Someone messed with you last night! Now you're a *${currentRole}*!\n`, payload );
+                    }
+                    cb();
+                }
+            });
         }
         else
         {
@@ -660,5 +755,21 @@ var SlackAPI = module.exports =
         }
         
         return actionIds;
+    },
+    
+    _appendActionResultToPayload: function( resultString, payload )
+    {
+        if ( payload.blocks )
+        {
+            payload.blocks.splice( 0, 0,
+            {
+                "type": "section",
+                "text":
+                {
+                    "type": "mrkdwn",
+                    "text": resultString
+                }
+            });
+        }
     }
 }
