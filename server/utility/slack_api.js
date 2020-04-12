@@ -815,8 +815,7 @@ var SlackAPI = module.exports =
         }
         else if ( actionId.indexOf( "drunkSwap" ) === 0 )
         {
-            const targetId = actionId.substring( "drunkSwap".length );
-            game.drunkSwap( userId, targetId, ( error ) =>
+            game.drunkSwap( userId, ( error ) =>
             {
                 if ( error )
                 {
