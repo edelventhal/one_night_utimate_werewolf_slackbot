@@ -897,7 +897,7 @@ var SlackAPI = module.exports =
         });
     },
     
-    _roleEmojis =
+    _roleEmojis:
     {
         "doppelganger": "clown_face",
         "werewolf": "wolf",
