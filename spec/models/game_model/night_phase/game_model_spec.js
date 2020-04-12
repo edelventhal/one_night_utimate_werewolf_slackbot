@@ -11,7 +11,7 @@ describe( "GameModel (Night)", function()
         {
             utils.doInsomniacInspect( game, function()
             {
-                expect(game.phase).toEqual(config.GamePhase.Day);
+                expect(game.phase).toEqual(config.GamePhase.CountdownToDay);
                 cb();
             });
         });

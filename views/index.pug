@@ -20,7 +20,7 @@ body
                 option(value=customData.users[userIndex]) #{customData.users[userIndex]}
             - }
     button(id="getDataButton" onClick="index.printGameData('gameIdText', 'outputDiv')") Get game data
-    button(id="startButton" onClick="index.startGame('gameIdText', 'outputDiv')") Start game
-    button(id="restartButton" onClick="index.restartGame('gameIdText', 'outputDiv')") Restart game
+    button(id="startButton" onClick="index.startNight('gameIdText', 'outputDiv')") Start game
+    button(id="restartButton" onClick="index.restartNight('gameIdText', 'outputDiv')") Restart game
     button(id="nextTurnButton" onClick="index.nextTurn('gameIdText', 'outputDiv')") Next turn
     div(id="outputDiv")

@@ -3,9 +3,11 @@ var Config = module.exports =
     GamePhase:
     {
         WaitingForPlayers: 0,
-        Night: 1,
-        Day: 2,
-        Finished: 3,
+        CountdownToNight: 1,
+        Night: 2,
+        CountdownToDay: 3,
+        Day: 4,
+        Finished: 5,
     },
     
     NightPhaseList:
@@ -77,7 +79,11 @@ var Config = module.exports =
     {
         Slack: "slack",
         Discord: "discord"
-    }
+    },
+    
+    //how long to let the countdown run between phases
+    countdownToNightLength: 15000,
+    countdownToDayLength: 5000
 };
 
 //create the NightPhase enum and fill the RoleList

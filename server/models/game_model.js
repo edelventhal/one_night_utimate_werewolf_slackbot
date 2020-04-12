@@ -347,13 +347,39 @@ GameModel.prototype._getCountForRole = function( role )
     return count;
 }
 
-GameModel.prototype.startGame = function( cb )
+GameModel.prototype.beginCountdownToNight = function( cb, countdownCompleteCb )
+{
+    if ( this.phase !== config.GamePhase.WaitingForPlayers )
+    {
+        cb( "The game has already started!" );
+    }
+    
+    this.phase = config.GamePhase.CountdownToNight;
+    
+    this.save( cb );
+    
+    //this is messy, but the easiest way - just move on to the next phase after a delay
+    setTimeout( () =>
+    {
+        if ( this.phase === config.GamePhase.CountdownToNight )
+        {
+            this.startNight( countdownCompleteCb );
+        }
+        else
+        {
+            countdownCompleteCb();
+        }
+    }, config.countdownToNightLength );
+};
+
+GameModel.prototype.startNight = function( cb )
 {
     if ( this.phase === config.GamePhase.Finished )
     {
         cb( "The game was completed. Create a new one!" );
     }
-    else if ( this.phase !== config.GamePhase.WaitingForPlayers )
+    else if ( this.phase !== config.GamePhase.WaitingForPlayers &&
+              this.phase !== config.GamePhase.CountdownToNight )
     {
         cb( "The game has already started!" );
     }
@@ -372,28 +398,42 @@ GameModel.prototype.startGame = function( cb )
     
         this._assignRoles();
         
-        //TODO - need to Slack private message all the players their roles
-        this.phase++;
+        this.phase = config.GamePhase.Night;
         
         //advance the night phase to whatever role is first
         this.nightPhase = -1;
         this._goToNextNightPhase();
-        // for ( ; this.nightPhase < config.NightPhaseList.length; this.nightPhase++ )
-        // {
-        //     const role = config.NightPhaseList[this.nightPhase];
-        //     if ( this.hasRole( role ) && config.ActiveNightRoles[role] )
-        //     {
-        //         console.log( "We have " + role + " and it's an active night role so we're stopping at " + this.nightPhase );
-        //         break;
-        //     }
-        //     else
-        //     {
-        //         console.log( "We don't have a " + role + " or it's not an active night phase so we're skipping it, now we're at " + this.nightPhase );
-        //     }
-        // }
     
         this.save( cb );
     }
+};
+
+GameModel.prototype.beginCountdownToDay = function( cb, countdownCompleteCb )
+{
+    //allow CountdownToDay in case we want to trigger this later
+    if ( this.phase !== config.GamePhase.Night &&
+         this.phase !== config.GamePhase.CountdownToDay )
+    {
+        cb( "The game must in the Night phase!" );
+    }
+    
+    this.phase = config.GamePhase.CountdownToDay;
+    
+    this.save( cb );
+    
+    //this is messy, but the easiest way - just move on to the next phase after a delay
+    setTimeout( () =>
+    {
+        if ( this.phase === config.GamePhase.CountdownToDay )
+        {
+            this.phase = config.GamePhase.Day;
+            this.save( countdownCompleteCb );
+        }
+        else
+        {
+            countdownCompleteCb();
+        }
+    }, config.countdownToDayLength );
 };
 
 //calls cb with the viewed card passed as param 2, and reassigns the doppelganger
@@ -801,10 +841,12 @@ GameModel.prototype._goToNextNightPhase = function()
     
     if ( this.nightPhase >= config.NightPhaseList.length )
     {
-        this.phase++;
+        console.log( "Nightphase has exceeded, countdown to day." );
+        this.phase = config.GamePhase.CountdownToDay;
         return true;
     }
     
+    console.log( "Nightphase is " + this.nightPhase + " still not there." );
     return false;
 };
 

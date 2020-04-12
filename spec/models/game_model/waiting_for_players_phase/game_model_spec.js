@@ -199,7 +199,7 @@ describe( "GameModel (WaitingForPlayers)", function()
             {
                 expect(game.phase).toEqual(config.GamePhase.WaitingForPlayers);
     
-                game.startGame( function( error )
+                game.startNight( function( error )
                 {
                     expect(error).toBeFalsy();
                     expect(game.phase).toEqual(config.GamePhase.Night);
@@ -214,7 +214,7 @@ describe( "GameModel (WaitingForPlayers)", function()
     {
         utils.createTestGame( function( game )
         {
-            game.startGame( function( error )
+            game.startNight( function( error )
             {
                 expect(error).toEqual( "The game has already started!" );
                 cb();
@@ -228,7 +228,7 @@ describe( "GameModel (WaitingForPlayers)", function()
         {
             game.phase = config.GamePhase.Finished;
             
-            game.startGame( function( error )
+            game.startNight( function( error )
             {
                 expect(error).toEqual( "The game was completed. Create a new one!" );
                 cb();
@@ -253,7 +253,7 @@ describe( "GameModel (WaitingForPlayers)", function()
         
         utils.addMultiplePlayers( game, targetPlayerCount, function()
         {
-            game.startGame( function( error )
+            game.startNight( function( error )
             {
                 expect(error).toBeFalsy();
                 expect(game.availableRoles.length).toEqual(3);
@@ -291,7 +291,7 @@ describe( "GameModel (WaitingForPlayers)", function()
         const targetPlayerCount = 10;
         utils.addMultiplePlayers( game, targetPlayerCount, function()
         {
-            game.startGame( function( error )
+            game.startNight( function( error )
             {
                 expect(error).toBeFalsy();
                 
@@ -315,7 +315,7 @@ describe( "GameModel (WaitingForPlayers)", function()
         {
             utils.doInsomniacInspect( game, function()
             {
-                expect(game.phase).toEqual(config.GamePhase.Day);
+                expect(game.phase).toEqual(config.GamePhase.CountdownToDay);
                 cb();
             });
         });

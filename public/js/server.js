@@ -73,12 +73,12 @@ var server =
         this._sendRequest( "game/getData", cb, { gameId: gameId } );
     },
     
-    startGame: function( gameId, cb )
+    startNight: function( gameId, cb )
     {
         this._sendRequest( "game/start", cb, { gameId: gameId } );
     },
     
-    restartGame: function( gameId, cb )
+    restartNight: function( gameId, cb )
     {
         this._sendRequest( "game/restart", cb, { gameId: gameId } );
     },

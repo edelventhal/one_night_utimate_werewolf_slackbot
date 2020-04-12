@@ -32,21 +32,21 @@ var index =
         });
     },
     
-    startGame: function( gameTextId, outputDivId )
+    startNight: function( gameTextId, outputDivId )
     {
         const gameId = document.getElementById( gameTextId ).value;
         const outputDiv = document.getElementById( outputDivId );
-        server.startGame( gameId, function()
+        server.startNight( gameId, function()
         {
             outputDiv.innerHTML = "Done.";
         });
     },
     
-    restartGame: function( gameTextId, outputDivId )
+    restartNight: function( gameTextId, outputDivId )
     {
         const gameId = document.getElementById( gameTextId ).value;
         const outputDiv = document.getElementById( outputDivId );
-        server.restartGame( gameId, function()
+        server.restartNight( gameId, function()
         {
             outputDiv.innerHTML = "Done.";
         });

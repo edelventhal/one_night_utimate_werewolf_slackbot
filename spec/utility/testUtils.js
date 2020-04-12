@@ -107,7 +107,7 @@ var TestUtils = module.exports =
                 {
                     TestUtils.addMultipleRoles( game, targetRoleCount, function()
                     {
-                        game.startGame( function( error2 )
+                        game.startNight( function( error2 )
                         {
                             //force the roles in
                             game.players.forEach( ( playerId, index ) =>

@@ -131,6 +131,15 @@ var SlackAPI = module.exports =
                             {
                                 cb( null, payload );
                             }
+                            
+                            //we might want to broadcast an update after a countdown if night just finished
+                            if ( game.phase === config.GamePhase.CountdownToDay )
+                            {
+                                game.beginCountdownToDay( () => {}, ( completeError ) =>
+                                {
+                                    this.broadcastUpdates( game.id );
+                                });
+                            }
                         }
                     }.bind(this));
                 }
@@ -167,9 +176,17 @@ var SlackAPI = module.exports =
         {
             this._preparePayloadWaitingForPlayers( game, userId, payload );
         }
+        else if ( game.phase === config.GamePhase.CountdownToNight )
+        {
+            this._preparePayloadCountdownToNight( game, userId, payload );
+        }
         else if ( game.phase === config.GamePhase.Night )
         {
             this._preparePayloadNight( game, userId, payload );
+        }
+        else if ( game.phase === config.GamePhase.CountdownToDay )
+        {
+            this._preparePayloadCountdownToDay( game, userId, payload );
         }
         //doesn't include Day yet, but I'm not sure that matters?
         else
@@ -340,6 +357,52 @@ var SlackAPI = module.exports =
         }
     },
     
+    _preparePayloadCountdownToNight: function( game, userId, payload )
+    {
+        const role = game.roles[userId];
+        const roles = [];
+        
+        game.availableRoles.forEach( function( role )
+        {
+            if ( roles.indexOf( role ) < 0 )
+            {
+                roles.splice( role );
+            }
+        });
+        
+        Object.values( game.roles ).forEach( function( role )
+        {
+            if ( roles.indexOf( role ) < 0 )
+            {
+                roles.push( role );
+            }
+        });
+        
+        //we must sort the roles, otherwise we'll give away what's unassigned
+        roles.sort();
+        
+        let rolesString = "";
+        roles.forEach( function( role )
+        {
+            rolesString += `*${role.charAt(0).toUpperCase() + role.substring(1)}* `;
+        });
+        
+        payload.blocks =
+        [
+            {
+                "type": "section",
+                "text":
+                {
+                    "type": "mrkdwn",
+                    "text": `You are a *${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
+                            `The game is about to begin! Boot up the One Night Ultimate Werewolf app NOW.` +
+                            `Use the roles ${rolesString} in the app.`
+                            `*CLOSE YOUR EYES!* Look back here only when the app tells you to open them.`
+                }
+            }
+        ];
+    },
+    
     _preparePayloadNight: function( game, userId, payload )
     {
         if ( !game.hasPlayer( userId ) )
@@ -358,9 +421,8 @@ var SlackAPI = module.exports =
             {
                 "type": "mrkdwn",
                 "text": "It's *NIGHT*. :full_moon:\n" +
-                    "Play the One Night Ultimate Werewolf app with the default game and all roles you chose, then follow its instructions.\n" +
                     "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
-                    ( isUserTurn ? "Your turn! Perform your action." : "*CLOSE YOUR EYES* Open only when told, then use the `/werewolf` command again." )
+                    ( isUserTurn ? "Your turn! Perform your action." : "*CLOSE YOUR EYES!* Open only when told, then look here to do your action." )
             }
         });
         
@@ -467,6 +529,28 @@ var SlackAPI = module.exports =
                 payload.blocks.push( actionsBlock );
             }
         }
+    },
+    
+    _preparePayloadCountdownToDay: function( game, userId, payload )
+    {
+        //this just mirrors the exact same message above because we don't
+        //want to automatically reveal if someone is the last active role.
+        //this provides a time for them to close their eyes after performing
+        //their action
+        const role = game.roles[userId];
+        payload.blocks =
+        [
+            {
+                "type": "section",
+                "text":
+                {
+                    "type": "mrkdwn",
+                    "text": "It's *NIGHT*. :full_moon:\n" +
+                        "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
+                        "*CLOSE YOUR EYES!* Open only when told, then look here to do your action."
+                }
+            }
+        ];
     },
     
     _preparePayloadFinished: function( game, userId, payload )
@@ -613,7 +697,10 @@ var SlackAPI = module.exports =
         }
         else if ( actionId.indexOf( "start" ) === 0 )
         {
-            game.startGame( cb );
+            game.beginCountdownToNight( cb, ( countdownError ) =>
+            {
+                this.broadcastUpdates( game.id );
+            });
         }
         else if ( actionId.indexOf( "restart" ) === 0 )
         {

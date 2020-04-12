@@ -150,7 +150,7 @@ var GameController = module.exports =
         {
             gameUtility.get( request.query.gameId, function( game )
             {
-                game.startGame( function( error )
+                game.beginCountdownToNight( function( error )
                 {
                     if ( error )
                     {
@@ -161,6 +161,10 @@ var GameController = module.exports =
                         response.status(200).json( { success: true } );
                         chatApi.broadcastUpdates( request.query.gameId );
                     }
+                },
+                function( gameStartError )
+                {
+                    chatApi.broadcastUpdates( request.query.gameId );
                 });
             });
         }
@@ -286,8 +290,29 @@ var GameController = module.exports =
                     }
                     else
                     {
-                        response.status(200).json( { success: true } );
-                        chatApi.broadcastUpdates( request.query.gameId );
+                        console.log( "went to next night phase " + game.phase );
+                        
+                        if ( game.phase === config.GamePhase.CountdownToDay )
+                        {
+                            console.log( "The game is in CountdownToDay" );
+                            
+                            game.beginCountdownToDay( function( phaseError )
+                            {
+                                console.log( "We have begun " + phaseError );
+                                
+                                response.status(200).json( { success: true } );
+                                chatApi.broadcastUpdates( request.query.gameId );
+                            }, function( completeError )
+                            {
+                                console.log( "Sent updates since we changed state " + game.phase + " error " + completeError );
+                                chatApi.broadcastUpdates( request.query.gameId );
+                            });
+                        }
+                        else
+                        {
+                            response.status(200).json( { success: true } );
+                            chatApi.broadcastUpdates( request.query.gameId );
+                        }
                     }
                 });
             });
