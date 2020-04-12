@@ -14,12 +14,12 @@ var ChatController = module.exports =
         {
             if ( error )
             {
-                console.log( "Returning error: " + error );
+                console.log( "chat/command returning error: " + error );
                 response.status( 200 ).json( error );
             }
             else
             {
-                console.log( "Responding with " + JSON.stringify(responseJson));
+                console.log( "chat/command responding with " + JSON.stringify(responseJson));
                 response.status( 200 ).json( responseJson );
                 
                 const params = chatApi.getParamsFromHook( request.body, request.query );

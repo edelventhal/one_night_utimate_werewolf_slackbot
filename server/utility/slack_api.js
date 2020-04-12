@@ -478,7 +478,7 @@ var SlackAPI = module.exports =
                 "text":
                 {
                     "type": "mrkdwn",
-                    "text": "Figure out who the werewolf is!"
+                    "text": "It's *Day Time* :sun_with_face:.\nDiscuss and figure out who the werewolf is!\nOnce you're done, choose one of the options below."
                 }
             },
             {
@@ -490,10 +490,21 @@ var SlackAPI = module.exports =
                         "text":
                         {
                             "type": "plain_text",
-                            "text": "Restart Game",
+                            "text": "New Game With Same Players",
                             "emoji": true
                         },
                         "value": "restart"
+                    },
+                    
+                    {
+                        "type": "button",
+                        "text":
+                        {
+                            "type": "plain_text",
+                            "text": "Stop Playing",
+                            "emoji": true
+                        },
+                        "value": "remove"
                     }
                 ]
             }
@@ -608,6 +619,19 @@ var SlackAPI = module.exports =
         {
             game.restart( cb );
         }
+        else if ( actionId.indexOf( "delete" ) === 0 )
+        {
+            Object.keys( game.responseUrls ).forEach( ( playerId ) =>
+            {
+                doneTargetCount++;
+                
+                const payload = {};
+                this._preparePayload( game, playerId, payload );
+                this._callResponseUrl( game.responseUrls[playerId], payload, doneFunc );
+            });
+            
+            game.remove( cb );
+        }
         else if ( actionId.indexOf( "doppelgangerCopy" ) === 0 )
         {
             const targetId = actionId.substring( "doppelgangerCopy".length );
@@ -688,7 +712,6 @@ var SlackAPI = module.exports =
         }
         else if ( actionId.indexOf( "troublemakerSwap" ) === 0 )
         {
-            console.log( "About to troublemakerSwap with actionIds " + JSON.stringify(actionIds) );
             if ( actionIds.length < 2 )
             {
                 cb( "You must provide two targets." );
@@ -697,23 +720,16 @@ var SlackAPI = module.exports =
             
             const targetId0 = actionIds[0].substring( "troublemakerSwap".length );
             const targetId1 = actionIds[1].substring( "troublemakerSwap".length );
-            console.log( "Target 0 is " + targetId0 + " and 1 is " + targetId1 );
             
             game.troublemakerSwap( userId, targetId0, targetId1, ( error ) =>
             {
-                console.log( "We did the swap!" );
-                
                 if ( error )
                 {
-                    console.log( "We had an error. :-( " + error );
                     cb( error );
                 }
                 else
                 {
-                    console.log( "Payload going out." );
-                    console.log( `Appending: You swapped <@${targetId0}>'s and <@${targetId1}>'s roles.\n`);
                     this._appendActionResultToPayload( `You swapped <@${targetId0}>'s and <@${targetId1}>'s roles.\n`, payload );
-                    console.log( "New playload is " + JSON.stringify(payload));
                     cb();
                 }
             });
