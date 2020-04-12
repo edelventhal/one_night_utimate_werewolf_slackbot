@@ -376,7 +376,7 @@ var SlackAPI = module.exports =
         roles.sort();
         
         let rolesString = "";
-        roles.forEach( function( role )
+        roles.forEach( ( role ) =>
         {
             rolesString += `${this._getRoleMarkdown(role)} `;
         });
