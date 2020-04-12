@@ -705,8 +705,6 @@ var SlackAPI = module.exports =
             //delete the game message now that it's done
             Object.keys( game.responseUrls ).forEach( ( playerId ) =>
             {
-                doneTargetCount++;
-                
                 const payload = {delete_original: true};
                 this._callResponseUrl( game.responseUrls[playerId], payload, doneFunc );
             });
