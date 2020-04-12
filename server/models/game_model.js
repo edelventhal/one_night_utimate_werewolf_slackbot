@@ -387,8 +387,11 @@ GameModel.prototype.startNight = function( cb )
     }
     else
     {
-        //moved to beginCountdownToNight()
-        //this._prepareRolesForNight();
+        //tests and the admin panel can start the game immediately, this fixes that case
+        if ( !this.roles[this.players[0]] )
+        {
+            this._prepareRolesForNight();
+        }
         
         this.phase = config.GamePhase.Night;
         

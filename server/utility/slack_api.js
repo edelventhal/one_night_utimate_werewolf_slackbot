@@ -246,7 +246,7 @@ var SlackAPI = module.exports =
         }
         else
         {
-            game.availableRoles.forEach( function( role )
+            game.availableRoles.forEach( ( role ) =>
             {
                 messageBlock.text.text += `${this._getRoleMarkdown(role)} `;
             });
@@ -289,7 +289,7 @@ var SlackAPI = module.exports =
                 ]
             };
         
-            game.unusedRoles.forEach( function( role )
+            game.unusedRoles.forEach( ( role ) =>
             {
                 roleSelectAction.options.push(
                 {
@@ -324,7 +324,7 @@ var SlackAPI = module.exports =
                 ]
             };
         
-            game.availableRoles.forEach( function( role )
+            game.availableRoles.forEach( ( role ) =>
             {
                 roleRemoveAction.options.push(
                 {
