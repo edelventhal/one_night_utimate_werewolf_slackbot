@@ -248,7 +248,7 @@ var SlackAPI = module.exports =
         {
             game.availableRoles.forEach( function( role )
             {
-                messageBlock.text.text += `${role.charAt(0).toUpperCase() + role.substring(1)} `;
+                messageBlock.text.text += `${this._getRoleMarkdown(role)} `;
             });
         }
         
@@ -296,7 +296,7 @@ var SlackAPI = module.exports =
                     "text":
                     {
                         "type": "plain_text",
-                        "text": `${role.charAt(0).toUpperCase() + role.substring(1)}`,
+                        "text": `${this._getRoleMarkdown(role)}`,
                         "emoji": true
                     },
                     "value": "addRole" + role
@@ -331,7 +331,7 @@ var SlackAPI = module.exports =
                     "text":
                     {
                         "type": "plain_text",
-                        "text": `${role.charAt(0).toUpperCase() + role.substring(1)}`,
+                        "text": `${this._getRoleMarkdown(role)}`,
                         "emoji": true
                     },
                     "value": "removeRole" + role
@@ -359,7 +359,7 @@ var SlackAPI = module.exports =
     
     _preparePayloadCountdownToNight: function( game, userId, payload )
     {
-        const role = game.roles[userId];
+        const role = game.initialRoles[userId];
         const roles = [];
         
         game.availableRoles.forEach( function( role )
@@ -367,7 +367,7 @@ var SlackAPI = module.exports =
             roles.push( role );
         });
         
-        Object.values( game.roles ).forEach( function( role )
+        Object.values( game.initialRoles ).forEach( function( role )
         {
             roles.push( role );
         });
@@ -378,7 +378,7 @@ var SlackAPI = module.exports =
         let rolesString = "";
         roles.forEach( function( role )
         {
-            rolesString += `*${role.charAt(0).toUpperCase() + role.substring(1)}* `;
+            rolesString += `${this._getRoleMarkdown(role)} `;
         });
         
         payload.blocks =
@@ -388,7 +388,7 @@ var SlackAPI = module.exports =
                 "text":
                 {
                     "type": "mrkdwn",
-                    "text": `You are a *${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
+                    "text": `You are a ${this._getRoleMarkdown(role)}.\n` +
                             `The game is about to begin! Boot up the One Night Ultimate Werewolf app NOW.\n` +
                             `Use the roles ${rolesString}in the app.\n` +
                             `*CLOSE YOUR EYES!* Look back here only when the app tells you to open them.`
@@ -404,7 +404,7 @@ var SlackAPI = module.exports =
             //TODO
         }
         
-        const role = game.roles[userId];
+        const role = game.initialRoles[userId];
         const isUserTurn = game.isUserTurn( userId );
         
         payload.blocks = payload.blocks || [];
@@ -415,7 +415,7 @@ var SlackAPI = module.exports =
             {
                 "type": "mrkdwn",
                 "text": "It's *NIGHT*. :full_moon:\n" +
-                    "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
+                    "Your role is: " + `${this._getRoleMarkdown(role)}.\n` +
                     ( isUserTurn ? "Your turn! Perform your action." : "*CLOSE YOUR EYES!* Open only when told, then look here to do your action." )
             }
         });
@@ -531,7 +531,7 @@ var SlackAPI = module.exports =
         //want to automatically reveal if someone is the last active role.
         //this provides a time for them to close their eyes after performing
         //their action
-        const role = game.roles[userId];
+        const role = game.initialRoles[userId];
         payload.blocks =
         [
             {
@@ -540,7 +540,7 @@ var SlackAPI = module.exports =
                 {
                     "type": "mrkdwn",
                     "text": "It's *NIGHT*. :full_moon:\n" +
-                        "Your role is: *" + `${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
+                        "Your role is: " + `${this._getRoleMarkdown(role)}.\n` +
                         "*CLOSE YOUR EYES!* Open only when told, then look here to do your action."
                 }
             }
@@ -895,5 +895,27 @@ var SlackAPI = module.exports =
                 "text": resultString
             }
         });
+    },
+    
+    _roleEmojis =
+    {
+        "doppelganger": "clown_face",
+        "werewolf": "wolf",
+        "minion": "man-bowing",
+        "mason": "male-factory-worker",
+        "seer": "female_mage",
+        "robber": "moneybag",
+        "troublemaker": "zany_face",
+        "drunk": "beer",
+        "insomniac": "flushed",
+        "villager": "male-farmer",
+        "tanner": "face_vomiting",
+        "hunter": "knife"
+    },
+    
+    _getRoleMarkdown: function( role )
+    {
+        const emoji = this._roleEmojis[role];
+        return `:${emoji}:*${role.charAt(0).toUpperCase() + role.substring(1)}*:${emoji}:`;
     }
 }
