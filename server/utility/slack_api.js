@@ -396,7 +396,7 @@ var SlackAPI = module.exports =
                     "type": "mrkdwn",
                     "text": `You are a *${role.charAt(0).toUpperCase() + role.substring(1)}*.\n` +
                             `The game is about to begin! Boot up the One Night Ultimate Werewolf app NOW.` +
-                            `Use the roles ${rolesString} in the app.`
+                            `Use the roles ` + rolesString + `in the app.`
                             `*CLOSE YOUR EYES!* Look back here only when the app tells you to open them.`
                 }
             }
