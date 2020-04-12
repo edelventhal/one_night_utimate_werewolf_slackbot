@@ -849,12 +849,10 @@ GameModel.prototype._goToNextNightPhase = function()
     
     if ( this.nightPhase >= config.NightPhaseList.length )
     {
-        console.log( "Nightphase has exceeded, countdown to day." );
         this.phase = config.GamePhase.CountdownToDay;
         return true;
     }
     
-    console.log( "Nightphase is " + this.nightPhase + " still not there." );
     return false;
 };
 
