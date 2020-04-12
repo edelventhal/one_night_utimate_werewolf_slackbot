@@ -364,18 +364,12 @@ var SlackAPI = module.exports =
         
         game.availableRoles.forEach( function( role )
         {
-            if ( roles.indexOf( role ) < 0 )
-            {
-                roles.splice( role );
-            }
+            roles.push( role );
         });
         
         Object.values( game.roles ).forEach( function( role )
         {
-            if ( roles.indexOf( role ) < 0 )
-            {
-                roles.push( role );
-            }
+            roles.push( role );
         });
         
         //we must sort the roles, otherwise we'll give away what's unassigned
