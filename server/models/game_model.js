@@ -113,6 +113,10 @@ GameModel.prototype.load = function( cb )
 
 GameModel.prototype.remove = function( cb )
 {
+    //this is just a safety thing in case someone tries to save data in memory later.
+    this._initializeNewGame( true );
+    
+    //delete from the db
     database.removeFromList( GAMES_LIST_KEY, this.id, function()
     {
         database.del( this.getDatabaseKey(), cb );
