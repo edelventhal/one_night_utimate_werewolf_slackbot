@@ -706,7 +706,7 @@ var SlackAPI = module.exports =
             Object.keys( game.responseUrls ).forEach( ( playerId ) =>
             {
                 const payload = {delete_original: true};
-                this._callResponseUrl( game.responseUrls[playerId], payload, doneFunc );
+                this._callResponseUrl( game.responseUrls[playerId], payload, () => {} );
             });
             
             game.remove( cb );
