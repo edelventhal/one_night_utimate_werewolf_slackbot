@@ -356,6 +356,8 @@ GameModel.prototype.beginCountdownToNight = function( cb, countdownCompleteCb )
     
     this.phase = config.GamePhase.CountdownToNight;
     
+    this._prepareRolesForNight();
+    
     this.save( cb );
     
     //this is messy, but the easiest way - just move on to the next phase after a delay
@@ -385,18 +387,8 @@ GameModel.prototype.startNight = function( cb )
     }
     else
     {
-        //if we have no roles, fill them with the defaults
-        if ( this.availableRoles.length <= 0 )
-        {
-            this._addDefaultRoles( this.players.length );
-        }
-        //just in case, fill up any additional roles that are needed
-        else
-        {
-            this._fillRolesRandomly( this.players.length );
-        }
-    
-        this._assignRoles();
+        //moved to beginCountdownToNight()
+        //this._prepareRolesForNight();
         
         this.phase = config.GamePhase.Night;
         
@@ -786,6 +778,22 @@ GameModel.prototype.goToNextNightPhase = function( cb )
     
     this._goToNextNightPhase();
     this.save( cb );
+};
+
+GameModel.prototype._prepareRolesForNight = function()
+{
+    //if we have no roles, fill them with the defaults
+    if ( this.availableRoles.length <= 0 )
+    {
+        this._addDefaultRoles( this.players.length );
+    }
+    //just in case, fill up any additional roles that are needed
+    else
+    {
+        this._fillRolesRandomly( this.players.length );
+    }
+
+    this._assignRoles();
 };
 
 GameModel.prototype._assignRoles = function()
