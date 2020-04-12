@@ -700,7 +700,7 @@ var SlackAPI = module.exports =
         {
             game.restart( cb );
         }
-        else if ( actionId.indexOf( "delete" ) === 0 )
+        else if ( actionId.indexOf( "remove" ) === 0 )
         {
             //delete the game message now that it's done
             Object.keys( game.responseUrls ).forEach( ( playerId ) =>
